@@ -14,10 +14,10 @@ public class Main extends Canvas implements Runnable{
 	public static final int TICKRATE = 64;
 	
 	private static final String TITLE = "Raycast Engine";
-	private static final int WH = 1080/4;
-	private static final int WW = 1920/4;
-	public static final int RH = WH/2;
-	public static final int RW = WW/2;
+	private static final int WH = 1080/2;
+	private static final int WW = 1920/2;
+	public static final int RH = WH/4;
+	public static final int RW = WW/4;
 	private JFrame jframe;
 	
 	private BufferedImage img;
