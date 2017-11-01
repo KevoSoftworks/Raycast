@@ -12,7 +12,6 @@ public class Camera {
 	
 	Map m;
 	Location l;
-	int fov = 90;
 	float UPH = 8f;
 	
 	float walkSpeed = 0.04f;
@@ -26,8 +25,8 @@ public class Camera {
 	public Camera(Map m, Location l){
 		this.m = m;
 		this.l = l;
-		direction = new Vector2(0,-1);
-		plane = new Vector2(1,0);
+		direction = new Vector2(0f,-0.001f);
+		plane = new Vector2(0.001f,0f);
 	}
 	
 	public Location getLocation(){
@@ -92,29 +91,13 @@ public class Camera {
 		
 	}
 	
-	public float minAngle(){
-		return (this.l.getRot() - (0.5f * this.getFovInRadians())) % 2f * (float)Math.PI;
-	}
-	
-	public float maxAngle(){
-		return (this.l.getRot() + (0.5f * this.getFovInRadians())) % 2f * (float)Math.PI;
-	}
-	
-	public float radiansPerPixel(){
-		return this.getFovInRadians() / Main.RW;
-	}
-	
-	public float getFovInRadians(){
-		return ((float)fov) * (float)Math.PI / 180f;
-	}
-	
 	public Point2D getPoint2D(Location l){
-		float x = ((l.getX() - this.getLocation().getX()) / (UPH / Main.RH * Main.RW)) * (float)Math.cos(this.getLocation().getRot()) + ((l.getY() - this.getLocation().getY()) / UPH) * (float)Math.sin(this.getLocation().getRot());
-		float y = ((l.getX() - this.getLocation().getX()) / (UPH / Main.RH * Main.RW)) * -1 * (float)Math.sin(this.getLocation().getRot()) + ((l.getY() - this.getLocation().getY()) / UPH) * (float)Math.cos(this.getLocation().getRot());
+		float x = ((l.getX() - this.getLocation().getX()) / (UPH / (float)Main.RH * (float)Main.RW)) * (float)Math.cos(this.getLocation().getRot()) + ((l.getY() - this.getLocation().getY()) / UPH) * (float)Math.sin(this.getLocation().getRot());
+		float y = ((l.getX() - this.getLocation().getX()) / (UPH / (float)Main.RH * (float)Main.RW)) * -1f * (float)Math.sin(this.getLocation().getRot()) + ((l.getY() - this.getLocation().getY()) / UPH) * (float)Math.cos(this.getLocation().getRot());
 		
-		return new Point2D.Float(
-					(int)Math.floor(((x + 1f) / 2f) * (float)Main.RW),
-					(int)Math.floor(((y + 1f) / 2f) * (float)Main.RH)
+		return new Point2D.Double(
+					((x + 1d) / 2f) * (float)Main.RW,
+					((y + 1d) / 2f) * (float)Main.RH
 				);
 	}
 	

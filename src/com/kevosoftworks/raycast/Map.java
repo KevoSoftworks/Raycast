@@ -17,9 +17,9 @@ public class Map {
 	
 	Camera camera;
 	ArrayList<ConvexRoom> rooms;
-	int curuuid = 0;
+	int curuuid = 1;
 	
-	boolean isTopDown = true;
+	boolean isTopDown = false;
 	boolean renderMap = true;
 	
 	public Map(){
@@ -28,23 +28,62 @@ public class Map {
 		
 		ArrayList<Wall>w1 = new ArrayList<Wall>();
 		ArrayList<Wall>w2 = new ArrayList<Wall>();
-		//walls.add(new Wall(new Location(), new Location(), Color.red));
-		w1.add(new SolidWall(new Location(-5f, -3f), new Location(2f, -5f), Color.red));
+		ArrayList<Wall>w3 = new ArrayList<Wall>();
+		ArrayList<Wall>w4 = new ArrayList<Wall>();
+		ArrayList<Wall>w5 = new ArrayList<Wall>();
+		ArrayList<Wall>w6 = new ArrayList<Wall>();
+		ArrayList<Wall>w7 = new ArrayList<Wall>();
+
+		w1.add(new SolidWall(new Location(-5f, -3f), new Location(-2.5f, -3.5f), Color.red));
+		w1.add(new SolidWall(new Location(-1.5f, -3.5f), new Location(2f, -5f), Color.red));
+		w1.add(new PortalWall(new Location(-2.5f, -3.5f), new Location(-1.5f, -3.5f), 3));
 		w1.add(new SolidWall(new Location(2f, -5f), new Location(4f, -4f), Color.green));
 		w1.add(new SolidWall(new Location(4f, -4f), new Location(6f, 3f), Color.blue));
 		w1.add(new SolidWall(new Location(0f, 5f), new Location(-5f, 5f), Color.gray));
-		w1.add(new SolidWall(new Location(-5f, 5f), new Location(-5f, -3f), Color.yellow));
-		w1.add(new PortalWall(new Location(6f, 3f), new Location(0f, 5f), 1));
-		//w1.add(new SolidWall(new Location(6f, 3f), new Location(0f, 5f), Color.yellow));
+		w1.add(new SolidWall(new Location(-5f, 5f), new Location(-5f, 1f), Color.yellow));
+		w1.add(new SolidWall(new Location(-5f, 1f), new Location(-5f, 0f), Color.green));
+		w1.add(new SolidWall(new Location(-5f, 0f), new Location(-5f, -3f), Color.yellow));
+		w1.add(new PortalWall(new Location(6f, 3f), new Location(0f, 5f), 2));
 		
 		w2.add(new SolidWall(new Location(6f, 3f), new Location(20f, 10f), Color.cyan));
 		w2.add(new SolidWall(new Location(20f, 10f), new Location(16f, 13f), Color.orange));
 		w2.add(new SolidWall(new Location(16f, 13f), new Location(6f, 13f), Color.magenta));
 		w2.add(new SolidWall(new Location(6f, 13f), new Location(0f, 5f), Color.pink));
-		w2.add(new PortalWall(new Location(6f, 3f), new Location(0f, 5f), 0));
+		w2.add(new PortalWall(new Location(6f, 3f), new Location(0f, 5f), 1));
 		
-		rooms.add(new ConvexRoom(w1, 0));
-		rooms.add(new ConvexRoom(w2, 1));
+		w3.add(new PortalWall(new Location(-2.5f, -3.5f), new Location(-1.5f, -3.5f), 1));
+		w3.add(new SolidWall(new Location(-2.5f, -3.5f), new Location(-2.5f, -10f), Color.cyan));
+		w3.add(new SolidWall(new Location(-1.5f, -3.5f), new Location(-1.5f, -10f), Color.cyan));
+		w3.add(new PortalWall(new Location(-2.5f, -10f), new Location(-1.5f, -10f), 4));
+		
+		w4.add(new PortalWall(new Location(-2.5f, -10f), new Location(-1.5f, -10f), 3));
+		w4.add(new PortalWall(new Location(-2.5f, -12f), new Location(-1.5f, -12f), 6));
+		w4.add(new PortalWall(new Location(-2.5f, -10f), new Location(-2.5f, -12f), 5));
+		w4.add(new PortalWall(new Location(-1.5f, -10f), new Location(-1.5f, -12f), 7));
+		
+		w5.add(new PortalWall(new Location(-2.5f, -10f), new Location(-2.5f, -12f), 4));
+		w5.add(new SolidWall(new Location(-2.5f, -10f), new Location(-5f, -10f), Color.cyan));
+		w5.add(new SolidWall(new Location(-2.5f, -12f), new Location(-5f, -12f), Color.cyan));
+		w5.add(new SolidWall(new Location(-5f, -10f), new Location(-5f, -12f), Color.darkGray));
+		
+		w6.add(new PortalWall(new Location(-2.5f, -12f), new Location(-1.5f, -12f), 4));
+		w6.add(new SolidWall(new Location(-2.5f, -12f), new Location(-2.5f, -17f), Color.cyan));
+		w6.add(new SolidWall(new Location(-1.5f, -12f), new Location(0f, -16f), Color.cyan));
+		w6.add(new SolidWall(new Location(-2.5f, -17f), new Location(0f, -16f), Color.darkGray));
+		
+		w7.add(new PortalWall(new Location(-1.5f, -10f), new Location(-1.5f, -12f), 4));
+		w7.add(new SolidWall(new Location(-1.5f, -10f), new Location(5f, -10f), Color.cyan));
+		w7.add(new SolidWall(new Location(-1.5f, -12f), new Location(5f, -12f), Color.cyan));
+		w7.add(new SolidWall(new Location(5f, -10f), new Location(5f, -12f), Color.darkGray));
+		
+		
+		rooms.add(new ConvexRoom(w1, 1));
+		rooms.add(new ConvexRoom(w2, 2));
+		rooms.add(new ConvexRoom(w3, 3));
+		rooms.add(new ConvexRoom(w4, 4));
+		rooms.add(new ConvexRoom(w5, 5));
+		rooms.add(new ConvexRoom(w6, 6));
+		rooms.add(new ConvexRoom(w7, 7));
 	}
 	
 	public void tick(InputHandler input){
@@ -98,14 +137,14 @@ public class Map {
     	float yIntersect;
     	boolean yForce = false;
     	
-    	if(dxRay == 0){
-    		if(dxWall == 0) return null;
+    	if(dxRay == 0f){
+    		if(dxWall == 0f) return null;
     		float slopeWall = dyWall / dxWall;
     		float offsetWall = wall[1].getY() - (wall[1].getX() * slopeWall);
     		
     		xIntersect = ray.getX();
     		yIntersect = slopeWall * xIntersect + offsetWall;
-    	} else if(dxWall == 0){
+    	} else if(dxWall == 0f){
     		float slopeRay = dyRay / dxRay;
 	    	float offsetRay = ray.getY() - (ray.getX() * slopeRay);
 	    	

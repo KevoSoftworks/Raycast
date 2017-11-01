@@ -44,16 +44,12 @@ public class ConvexRoom{
 		Point2D pCoord1 = m.camera.getPoint2D(pLoc1);
 		Point2D pCoord2 = m.camera.getPoint2D(pLoc2);
 		//Remap x-coordinate to [-1, 1] interval
-		float cameraX = 2 * ((float)i/(float)Main.RW) - 1;
+		float cameraX = (float) (2f * ((float)i/Main.RW) - 1f);
 		Vector2 rayDir = new Vector2(
 					m.camera.direction.getX() + m.camera.plane.getX() * cameraX,
 					m.camera.direction.getY() + m.camera.plane.getY() * cameraX
 				);
 		Location rLoc = new Location(m.camera.getLocation().getX() + rayDir.getX(), m.camera.getLocation().getY() + rayDir.getY());
-		//Point2D rCoord = camera.getPoint2D(rLoc);
-		//gA[1].setColor(Color.blue);
-		//if(i == 0 || i == Main.RW) gA[1].drawLine((int)(0.5f * Main.RW), (int)(0.5f * Main.RH), (int)rCoord.getX(), (int)rCoord.getY());
-		//gA[1].setColor(Color.yellow);
 		for(Wall w:walls){
 			Location[] l = w.getLocations();
 			Location intersect = m.getIntersectionLocation(rLoc, l);
@@ -64,16 +60,14 @@ public class ConvexRoom{
 					if(ruid != originroom) m.getRoom(((PortalWall)w).getRoomUuid()).renderRay(m, gA, i, this.uuid);
 				} else {
 					Point2D iCoord = m.camera.getPoint2D(intersect);
-					//gA[1].drawLine((int)iCoord.getX(), (int)iCoord.getY(), (int)iCoord.getX(), (int)iCoord.getY());
-					//calculate distance
 					float dist = (float) (Math.abs(
 								((iCoord.getX() - pCoord1.getX()) * -(pCoord2.getY() - pCoord1.getY())) + 
 								((iCoord.getY() - pCoord1.getY()) * (pCoord2.getX() - pCoord1.getX()))
 							) / Math.sqrt(
 									Math.pow(pCoord2.getY() - pCoord1.getY(),2) + Math.pow(pCoord2.getX() - pCoord1.getX(),2)
 							));
-					//float dist = (float) Math.sqrt(Math.pow(dCoord.getX() - iCoord.getX(), 2) + Math.pow(dCoord.getY() - iCoord.getY(), 2));
-					int lH = (int)(4*(float)Main.RH / dist);
+					//Again, the 8 compensates for the amount of 'grid points' per width quadrant
+					float lH = (8f*(float)Main.RH / dist);
 					if(lH > Main.RH) lH = Main.RH;
 					
 					int rc = (int) (w.getColor().getRed() * (2*(float)lH / (float)Main.RH));
@@ -89,8 +83,6 @@ public class ConvexRoom{
 					
 					gA[1].setColor(new Color(rc, gc, bc));
 					gA[1].drawLine(i, (int)((float)Main.RH * 0.5f + lH * 0.5f), i, (int)((float)Main.RH * 0.5f - lH * 0.5f));
-					//gA[1].setColor(Color.pink);
-					//gA[1].drawLine((int)iCoord.getX(), (int)iCoord.getY(), (int)iCoord.getX(), (int)iCoord.getY());
 				}
 			}
 		}
