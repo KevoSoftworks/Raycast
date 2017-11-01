@@ -15,6 +15,7 @@ public class InputHandler implements KeyListener{
 	
 	boolean reset = false;
 	boolean switchview = false;
+	boolean renderMap = true;
 	
 	public InputHandler(){
 		
@@ -79,6 +80,9 @@ public class InputHandler implements KeyListener{
 		
 		case KeyEvent.VK_E:
 			switchview = true;
+			break;
+		case KeyEvent.VK_Q:
+			renderMap = !renderMap;
 			break;
 		}
 	}

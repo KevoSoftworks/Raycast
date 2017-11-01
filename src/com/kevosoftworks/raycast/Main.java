@@ -96,7 +96,7 @@ public class Main extends Canvas implements Runnable{
 	
 	public void tick(){
 		ticks++;
-		System.out.println("TPS: " + tps + "; FPS: " + fps);
+		System.out.println("TPS: " + Math.round(tps) + "; FPS: " + Math.round(fps));
 		map.tick(input);
 	}
 	

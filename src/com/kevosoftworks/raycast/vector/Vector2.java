@@ -32,5 +32,10 @@ public class Vector2 extends Vector{
 		*/
 		return null;
 	}
+	
+	public Vector2 normalised(){
+		float length = (float)Math.sqrt(x*x + y*y);
+		return new Vector2(this.x / length, this.y / length);
+	}
 
 }

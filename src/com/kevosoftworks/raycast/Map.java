@@ -9,28 +9,42 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
 import com.kevosoftworks.raycast.vector.Vector2;
+import com.kevosoftworks.raycast.wall.PortalWall;
+import com.kevosoftworks.raycast.wall.SolidWall;
+import com.kevosoftworks.raycast.wall.Wall;
 
 public class Map {
 	
 	Camera camera;
-	ArrayList<Wall> walls;
+	ArrayList<ConvexRoom> rooms;
+	int curuuid = 0;
 	
 	boolean isTopDown = true;
+	boolean renderMap = true;
 	
 	public Map(){
-		camera = new Camera(new Location(0f,0f));
-		walls = new ArrayList<Wall>();
+		camera = new Camera(this, new Location(0f,0f));
+		rooms = new ArrayList<ConvexRoom>();
 		
+		ArrayList<Wall>w1 = new ArrayList<Wall>();
+		ArrayList<Wall>w2 = new ArrayList<Wall>();
 		//walls.add(new Wall(new Location(), new Location(), Color.red));
-		walls.add(new Wall(new Location(-5f, -3f), new Location(2f, -5f), Color.red));
-		walls.add(new Wall(new Location(2f, -5f), new Location(4f, -4f), Color.green));
-		walls.add(new Wall(new Location(4f, -4f), new Location(6f, 3f), Color.blue));
-		walls.add(new Wall(new Location(6f, 3f), new Location(20f, 10f), Color.cyan));
-		walls.add(new Wall(new Location(20f, 10f), new Location(16f, 13f), Color.orange));
-		walls.add(new Wall(new Location(16f, 13f), new Location(6f, 13f), Color.magenta));
-		walls.add(new Wall(new Location(6f, 13f), new Location(0f, 5f), Color.pink));
-		walls.add(new Wall(new Location(0f, 5f), new Location(-5f, 5f), Color.gray));
-		walls.add(new Wall(new Location(-5f, 5f), new Location(-5f, -3f), Color.yellow));
+		w1.add(new SolidWall(new Location(-5f, -3f), new Location(2f, -5f), Color.red));
+		w1.add(new SolidWall(new Location(2f, -5f), new Location(4f, -4f), Color.green));
+		w1.add(new SolidWall(new Location(4f, -4f), new Location(6f, 3f), Color.blue));
+		w1.add(new SolidWall(new Location(0f, 5f), new Location(-5f, 5f), Color.gray));
+		w1.add(new SolidWall(new Location(-5f, 5f), new Location(-5f, -3f), Color.yellow));
+		w1.add(new PortalWall(new Location(6f, 3f), new Location(0f, 5f), 1));
+		//w1.add(new SolidWall(new Location(6f, 3f), new Location(0f, 5f), Color.yellow));
+		
+		w2.add(new SolidWall(new Location(6f, 3f), new Location(20f, 10f), Color.cyan));
+		w2.add(new SolidWall(new Location(20f, 10f), new Location(16f, 13f), Color.orange));
+		w2.add(new SolidWall(new Location(16f, 13f), new Location(6f, 13f), Color.magenta));
+		w2.add(new SolidWall(new Location(6f, 13f), new Location(0f, 5f), Color.pink));
+		w2.add(new PortalWall(new Location(6f, 3f), new Location(0f, 5f), 0));
+		
+		rooms.add(new ConvexRoom(w1, 0));
+		rooms.add(new ConvexRoom(w2, 1));
 	}
 	
 	public void tick(InputHandler input){
@@ -40,6 +54,7 @@ public class Map {
 			input.switchview = false;
 			isTopDown = !isTopDown;
 		}
+		renderMap = input.renderMap;
 	}
 	
 	public void render(Graphics[] gA){
@@ -49,65 +64,24 @@ public class Map {
 		Point2D dCoord = camera.getPoint2D(dLoc);
 		Point2D pCoord1 = camera.getPoint2D(pLoc1);
 		Point2D pCoord2 = camera.getPoint2D(pLoc2);
-		for(Wall w:walls){
-			Location[] l = w.getLocations();
-			Point2D[] p = camera.getPoints2D(l);
-			//We assume the screen to have 16 units in the y coordinate
-			gA[1].setColor(w.getColor());
-			gA[1].drawLine((int)p[0].getX(), (int)p[0].getY(), (int)p[1].getX(), (int)p[1].getY());
-		}
-		//Draw camera angle
-		gA[1].setColor(Color.white);
-		gA[1].drawLine((int)(0.5f * Main.RW), (int)(0.5f * Main.RH), (int)dCoord.getX(), (int)dCoord.getY());
-		gA[1].drawLine((int)pCoord1.getX(), (int)pCoord1.getY(), (int)pCoord2.getX(), (int)pCoord2.getY());
-		if(!isTopDown){	
-			//Cast Rays
-			for(int i = 0; i <= Main.RW; i++){
-				//Remap x-coordinate to [-1, 1] interval
-				float cameraX = 2 * ((float)i/(float)Main.RW) - 1;
-				Vector2 rayDir = new Vector2(
-							camera.direction.getX() + camera.plane.getX() * cameraX,
-							camera.direction.getY() + camera.plane.getY() * cameraX
-						);
-				Location rLoc = new Location(camera.getLocation().getX() + rayDir.getX(), camera.getLocation().getY() + rayDir.getY());
-				//Point2D rCoord = camera.getPoint2D(rLoc);
-				//gA[1].setColor(Color.blue);
-				//if(i == 0 || i == Main.RW) gA[1].drawLine((int)(0.5f * Main.RW), (int)(0.5f * Main.RH), (int)rCoord.getX(), (int)rCoord.getY());
-				//gA[1].setColor(Color.yellow);
+		if(renderMap){
+			for(ConvexRoom cr:rooms){
+				Wall[] walls = cr.getWalls();
 				for(Wall w:walls){
 					Location[] l = w.getLocations();
-					Location intersect = getIntersectionLocation(rLoc, l);
-					if(intersect == null) continue;
-					Point2D iCoord = camera.getPoint2D(intersect);
-					//gA[1].drawLine((int)iCoord.getX(), (int)iCoord.getY(), (int)iCoord.getX(), (int)iCoord.getY());
-					//calculate distance
-					float dist = (float) (Math.abs(
-								((iCoord.getX() - pCoord1.getX()) * -(pCoord2.getY() - pCoord1.getY())) + 
-								((iCoord.getY() - pCoord1.getY()) * (pCoord2.getX() - pCoord1.getX()))
-							) / Math.sqrt(
-									Math.pow(pCoord2.getY() - pCoord1.getY(),2) + Math.pow(pCoord2.getX() - pCoord1.getX(),2)
-							));
-					//float dist = (float) Math.sqrt(Math.pow(dCoord.getX() - iCoord.getX(), 2) + Math.pow(dCoord.getY() - iCoord.getY(), 2));
-					int lH = (int)(4*(float)Main.RH / dist);
-					if(lH > Main.RH) lH = Main.RH;
-					
-					int rc = (int) (w.getColor().getRed() * (2*(float)lH / (float)Main.RH));
-					int gc = (int) (w.getColor().getGreen() * (2*(float)lH / (float)Main.RH));
-					int bc = (int) (w.getColor().getBlue() * (2*(float)lH / (float)Main.RH));
-					
-					if(rc > 255) rc = 255;
-					if(rc < 0) rc = 0;
-					if(gc > 255) gc = 255;
-					if(gc < 0) gc = 0;
-					if(bc > 255) bc = 255;
-					if(bc < 0) bc = 0;
-					
-					gA[1].setColor(new Color(rc, gc, bc));
-					gA[1].drawLine(i, (int)((float)Main.RH * 0.5f + lH * 0.5f), i, (int)((float)Main.RH * 0.5f - lH * 0.5f));
-					//gA[1].setColor(Color.pink);
-					//gA[1].drawLine((int)iCoord.getX(), (int)iCoord.getY(), (int)iCoord.getX(), (int)iCoord.getY());
+					Point2D[] p = camera.getPoints2D(l);
+					//We assume the screen to have 16 units in the y coordinate
+					gA[1].setColor(w.getColor());
+					gA[1].drawLine((int)p[0].getX(), (int)p[0].getY(), (int)p[1].getX(), (int)p[1].getY());
 				}
 			}
+			//Draw camera angle
+			gA[1].setColor(Color.white);
+			gA[1].drawLine((int)(0.5f * Main.RW), (int)(0.5f * Main.RH), (int)dCoord.getX(), (int)dCoord.getY());
+			gA[1].drawLine((int)pCoord1.getX(), (int)pCoord1.getY(), (int)pCoord2.getX(), (int)pCoord2.getY());
+		}
+		if(!isTopDown){
+			this.getCurrentRoom().render(this, gA, this.curuuid);
 		}			
 	}
     
@@ -122,6 +96,7 @@ public class Map {
     	
     	float xIntersect;
     	float yIntersect;
+    	boolean yForce = false;
     	
     	if(dxRay == 0){
     		if(dxWall == 0) return null;
@@ -146,9 +121,12 @@ public class Map {
 	    	xIntersect = (offsetWall - offsetRay) / (slopeRay - slopeWall);
 	    	yIntersect = slopeRay * xIntersect + offsetRay;
     	}
+    	
+    	if(dyWall == 0) yForce = true;
+    	
     	Location r = new Location(xIntersect, yIntersect);
     	if(xIntersect >= Math.min(wall[1].getX(), wall[0].getX()) && xIntersect <= Math.max(wall[1].getX(), wall[0].getX())){
-    		if(yIntersect >= Math.min(wall[1].getY(), wall[0].getY()) && yIntersect <= Math.max(wall[1].getY(), wall[0].getY())){
+    		if((yIntersect >= Math.min(wall[1].getY(), wall[0].getY()) && yIntersect <= Math.max(wall[1].getY(), wall[0].getY())) || yForce){
     			if(ray.getY() < camera.getY()){
     				//Up direction
     				if(yIntersect < camera.getY()){
@@ -173,6 +151,17 @@ public class Map {
     				}
     			}
     		}
+    	}
+    	return null;
+    }
+    
+    public ConvexRoom getCurrentRoom(){
+    	return this.getRoom(this.curuuid);
+    }
+    
+    public ConvexRoom getRoom(int uuid){
+    	for(ConvexRoom cr:rooms){
+    		if(cr.getUUID() == uuid) return cr;
     	}
     	return null;
     }

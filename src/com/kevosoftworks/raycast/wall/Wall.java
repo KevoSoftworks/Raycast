@@ -1,8 +1,10 @@
-package com.kevosoftworks.raycast;
+package com.kevosoftworks.raycast.wall;
 
 import java.awt.Color;
 
-public class Wall {
+import com.kevosoftworks.raycast.Location;
+
+public class Wall{
 	
 	Location p1;
 	Location p2;
@@ -13,6 +15,7 @@ public class Wall {
 	public Wall(Location p1, Location p2){
 		this.p1 = p1;
 		this.p2 = p2;
+		this.c = Color.black;
 	}
 	
 	public Wall(Location p1, Location p2, Color c){
