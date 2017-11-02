@@ -16,8 +16,8 @@ public class Main extends Canvas implements Runnable{
 	private static final String TITLE = "Raycast Engine";
 	private static final int WH = 1080/2;
 	private static final int WW = 1920/2;
-	public static final int RH = WH/4;
-	public static final int RW = WW/4;
+	public static final int RH = 288;
+	public static final int RW = 512;
 	private JFrame jframe;
 	
 	private BufferedImage img;
@@ -96,7 +96,7 @@ public class Main extends Canvas implements Runnable{
 	
 	public void tick(){
 		ticks++;
-		System.out.println("TPS: " + Math.round(tps) + "; FPS: " + Math.round(fps));
+		System.out.println("TPS: " + Math.round(tps) + "; FPS: " + Math.round(fps) + "; " + RW + "x" + RH);
 		map.tick(input);
 	}
 	

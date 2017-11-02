@@ -16,6 +16,7 @@ import com.kevosoftworks.raycast.wall.Wall;
 public class Map {
 	
 	Camera camera;
+	Art art;
 	ArrayList<ConvexRoom> rooms;
 	int curuuid = 1;
 	
@@ -23,6 +24,7 @@ public class Map {
 	boolean renderMap = true;
 	
 	public Map(){
+		art = new Art();
 		camera = new Camera(this, new Location(0f,0f));
 		rooms = new ArrayList<ConvexRoom>();
 		

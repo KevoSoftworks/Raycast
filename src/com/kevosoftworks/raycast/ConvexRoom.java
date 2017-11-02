@@ -2,7 +2,10 @@ package com.kevosoftworks.raycast;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import com.kevosoftworks.raycast.vector.Vector2;
@@ -66,11 +69,19 @@ public class ConvexRoom{
 							) / Math.sqrt(
 									Math.pow(pCoord2.getY() - pCoord1.getY(),2) + Math.pow(pCoord2.getX() - pCoord1.getX(),2)
 							));
-					//Again, the 8 compensates for the amount of 'grid points' per width quadrant
-					float lH = (8f*(float)Main.RH / dist);
-					if(lH > Main.RH) lH = Main.RH;
+					//The 16f compensates for the resolution
+					float lH = (16f*(float)Main.RH / dist);
+					if(lH > 255*Main.RH) lH = 255*Main.RH;
 					
-					int rc = (int) (w.getColor().getRed() * (2*(float)lH / (float)Main.RH));
+					BufferedImage bi = new BufferedImage(1, m.art.wall.height, BufferedImage.TYPE_INT_ARGB);
+					int[] texture = m.art.wall.getColumn(l[0].distance(intersect));
+					for(int y = 0; y < bi.getHeight(); y++){
+						bi.setRGB(0, y, texture[y]);
+					}
+					((Graphics2D)gA[1]).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+					gA[1].drawImage(bi, i, (int)((float)Main.RH * 0.5f - lH * 0.5f), 1, (int)lH, null);
+					
+					/*int rc = (int) (w.getColor().getRed() * (2*(float)lH / (float)Main.RH));
 					int gc = (int) (w.getColor().getGreen() * (2*(float)lH / (float)Main.RH));
 					int bc = (int) (w.getColor().getBlue() * (2*(float)lH / (float)Main.RH));
 					
@@ -82,7 +93,7 @@ public class ConvexRoom{
 					if(bc < 0) bc = 0;
 					
 					gA[1].setColor(new Color(rc, gc, bc));
-					gA[1].drawLine(i, (int)((float)Main.RH * 0.5f + lH * 0.5f), i, (int)((float)Main.RH * 0.5f - lH * 0.5f));
+					gA[1].drawLine(i, (int)((float)Main.RH * 0.5f + lH * 0.5f), i, (int)((float)Main.RH * 0.5f - lH * 0.5f));*/
 				}
 			}
 		}
