@@ -42,8 +42,7 @@ public class Camera {
 		//this.l.setRot(0.5f*(float)Math.sin(Main.ticks/512d));
 		Vector2 nd = this.direction.normalised();
 		Vector2 ndRot = this.perpRotMat.multiply(this.direction).normalised();
-		
-		if(i.reset) this.l = new Location(0,0,0);
+
 		if(i.rotateleft){
 			this.direction = this.getRotationMatrix(-rotateSpeed).multiply(direction);
 			this.plane = this.getRotationMatrix(-rotateSpeed).multiply(plane);
@@ -53,38 +52,42 @@ public class Camera {
 			this.plane = this.getRotationMatrix(rotateSpeed).multiply(plane);
 		}
 		
-		Vector2 movement = new Vector2(this.l.getX(), this.l.getY());
+		Vector2 movement = new Vector2(0,0);
 		
 		if(i.keyup){
-			movement = new Vector2(this.l.getX() + nd.getX() * walkSpeed, this.l.getY() + nd.getY() * walkSpeed);
+			movement.add(nd);
 		}
 		if(i.keydown){
-			movement = new Vector2(this.l.getX() - nd.getX() * walkSpeed, this.l.getY() - nd.getY() * walkSpeed);
+			movement.add(new Vector2(-nd.getX(),-nd.getY()));
 		}
 		if(i.keyleft){
-			movement = new Vector2(this.l.getX() - ndRot.getX() * walkSpeed, this.l.getY() - ndRot.getY() * walkSpeed);
+			movement.add(new Vector2(-ndRot.getX(), -ndRot.getY()));
 		}
 		if(i.keyright){
-			movement = new Vector2(this.l.getX() + ndRot.getX() * walkSpeed, this.l.getY() + ndRot.getY() * walkSpeed);
+			movement.add(ndRot);
 		}
+		
+		movement.normalise();
+		movement.multiply(walkSpeed);
+		if(i.keyshift) movement.multiply(3f);
 		
 		//Collision
 		for(Wall w:m.getCurrentRoom().getWalls()){
-			Location is = m.getIntersectionLocation(new Location(movement.getX(), movement.getY()), w.getLocations());
+			Location is = m.getIntersectionLocation(new Location(this.l.getX() + movement.getX(), this.l.getY() + movement.getY()), w.getLocations());
 			if(is != null){
-				if(is.getX() >= Math.min(this.l.getX(), movement.getX()) && is.getX() <= Math.max(this.l.getX(), movement.getX())){
-					if(is.getY() >= Math.min(this.l.getY(), movement.getY()) && is.getY() <= Math.max(this.l.getY(), movement.getY())){
+				if(is.getX() >= Math.min(this.l.getX(), this.l.getX() + movement.getX()) && is.getX() <= Math.max(this.l.getX(), this.l.getX() + movement.getX())){
+					if(is.getY() >= Math.min(this.l.getY(), this.l.getY() + movement.getY()) && is.getY() <= Math.max(this.l.getY(), this.l.getY() + movement.getY())){
 						if(w instanceof PortalWall){
 							m.curuuid = ((PortalWall)w).getRoomUuid();
 						} else {
-							movement = new Vector2(this.l.getX(), this.l.getY());
+							movement = new Vector2(0, 0);
 						}
 					}
 				}
 			}
 		}
-		this.l.setX(movement.getX());
-		this.l.setY(movement.getY());
+		this.l.setX(this.l.getX() + movement.getX());
+		this.l.setY(this.l.getY() + movement.getY());
 	}
 	
 	public void render(){

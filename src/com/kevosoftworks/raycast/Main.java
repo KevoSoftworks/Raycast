@@ -16,8 +16,8 @@ public class Main extends Canvas implements Runnable{
 	private static final String TITLE = "Raycast Engine";
 	private static final int WH = 1080/2;
 	private static final int WW = 1920/2;
-	public static final int RH = 288;
-	public static final int RW = 512;
+	public static final int RH = 288/2;
+	public static final int RW = 512/2;
 	private JFrame jframe;
 	
 	private BufferedImage img;

@@ -13,8 +13,8 @@ public class PortalWall extends Wall{
 		this.cruuid = crUuid;
 	}
 	
-	public PortalWall(Location p1, Location p2, Color c, int crUuid){
-		super(p1, p2, c);
+	public PortalWall(Location p1, Location p2, int texNum, int crUuid){
+		super(p1, p2, texNum);
 		this.cruuid = crUuid;
 	}
 	

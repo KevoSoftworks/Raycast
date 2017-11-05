@@ -17,6 +17,11 @@ public class ConvexRoom{
 	public int uuid;
 	ArrayList<Wall> walls;
 	
+	Texture floor;
+	int[][] floorTex;
+	
+	float resComp = 8f;
+	
 	public ConvexRoom(ArrayList<Wall> walls, int uuid){
 		this.uuid = uuid;
 		this.walls = walls;
@@ -36,16 +41,23 @@ public class ConvexRoom{
 	
 	public void render(Map m, Graphics[] gA, int originroom){
 		//Cast Rays
+		floor = m.art.getTexture(Art.TEXTURE_GRASS);
+		floorTex = floor.getPixelArray();
 		for(int i = 0; i <= Main.RW; i++){
 			this.renderRay(m, gA, i, originroom);
 		}
 	}
 	
 	public void renderRay(Map m, Graphics[] gA, int i, int originroom){
+		if(floor == null){
+			floor = m.art.getTexture(Art.TEXTURE_GRASS);
+			floorTex = floor.getPixelArray();
+		}
 		Location pLoc1 = new Location(m.camera.getLocation().getX() + m.camera.direction.getX() - m.camera.plane.getX(), m.camera.getLocation().getY() + m.camera.direction.getY() - m.camera.plane.getY());
 		Location pLoc2 = new Location(m.camera.getLocation().getX() + m.camera.direction.getX() + m.camera.plane.getX(), m.camera.getLocation().getY() + m.camera.direction.getY() + m.camera.plane.getY());
 		Point2D pCoord1 = m.camera.getPoint2D(pLoc1);
 		Point2D pCoord2 = m.camera.getPoint2D(pLoc2);
+		Point2D cCoord = m.camera.getPoint2D(m.camera.getLocation());
 		//Remap x-coordinate to [-1, 1] interval
 		float cameraX = (float) (2f * ((float)i/Main.RW) - 1f);
 		Vector2 rayDir = new Vector2(
@@ -70,16 +82,40 @@ public class ConvexRoom{
 									Math.pow(pCoord2.getY() - pCoord1.getY(),2) + Math.pow(pCoord2.getX() - pCoord1.getX(),2)
 							));
 					//The 16f compensates for the resolution
-					float lH = (16f*(float)Main.RH / dist);
+					float lH = (resComp*(float)Main.RH / dist);
 					if(lH > 255*Main.RH) lH = 255*Main.RH;
 					
-					BufferedImage bi = new BufferedImage(1, m.art.wall.height, BufferedImage.TYPE_INT_ARGB);
-					int[] texture = m.art.wall.getColumn(l[0].distance(intersect));
+					Texture t = m.art.getTexture(w.getTextureNumber());
+					
+					BufferedImage bi = new BufferedImage(1, t.height, BufferedImage.TYPE_INT_ARGB);
+					int[] texture = t.getColumn(l[0].distance(intersect));
 					for(int y = 0; y < bi.getHeight(); y++){
 						bi.setRGB(0, y, texture[y]);
 					}
 					((Graphics2D)gA[1]).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-					gA[1].drawImage(bi, i, (int)((float)Main.RH * 0.5f - lH * 0.5f), 1, (int)lH, null);
+					//gA[1].drawImage(bi, i, (int)((float)Main.RH * 0.5f - lH * 0.5f), 1, (int)lH, null);
+					for(int k = 0; k < (int)Math.ceil(w.getHeight()); k++){
+						if((int)Math.floor((float)Main.RH * 0.5f - lH * 0.5f - k*lH) + (int)Math.ceil(lH) < 0) continue;
+						gA[1].drawImage(bi, i, (int)Math.floor((float)Main.RH * 0.5f - lH * 0.5f - k*lH), 1, (int)Math.ceil(lH), null);
+					}
+					
+					//render floors
+					int wH = (int)Math.floor((float)Main.RH * 0.5f - lH * 0.5f) + (int)Math.ceil(lH);
+					if(wH < Main.RH){
+						BufferedImage biF = new BufferedImage(1, Main.RH - wH, BufferedImage.TYPE_INT_ARGB);
+						for(int y = wH + 1; y <= Main.RH; y++){
+							float curDist = (float)Main.RH / (2f * (float)y - (float)Main.RH);
+							float weight = (float)curDist / (float)(dist / resComp);
+							float curFloorX = (float) (weight * intersect.getX() + (1f-weight) * m.camera.getLocation().getX())*1f;
+							float curFloorY = (float) (weight * intersect.getY() + (1f-weight) * m.camera.getLocation().getY())*1f;
+							
+							int floorTexX = (int)Math.abs((curFloorX * (float)floor.width) % (float)floor.width);
+							int floorTexY = (int)Math.abs((curFloorY * (float)floor.height) % (float)floor.height);
+							biF.setRGB(0, y - 1 - wH, floorTex[floorTexX][floorTexY]);
+						}
+						gA[1].drawImage(biF, i, wH, 1, biF.getHeight(), null);
+					}
+					return;
 					
 					/*int rc = (int) (w.getColor().getRed() * (2*(float)lH / (float)Main.RH));
 					int gc = (int) (w.getColor().getGreen() * (2*(float)lH / (float)Main.RH));

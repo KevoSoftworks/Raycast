@@ -36,26 +36,26 @@ public class Map {
 		ArrayList<Wall>w6 = new ArrayList<Wall>();
 		ArrayList<Wall>w7 = new ArrayList<Wall>();
 
-		w1.add(new SolidWall(new Location(-5f, -3f), new Location(-2.5f, -3.5f), Color.red));
-		w1.add(new SolidWall(new Location(-1.5f, -3.5f), new Location(2f, -5f), Color.red));
+		w1.add(new SolidWall(new Location(-5f, -3f), new Location(-2.5f, -3.5f), Art.TEXTURE_WALL,4));
+		w1.add(new SolidWall(new Location(-1.5f, -3.5f), new Location(2f, -5f), Art.TEXTURE_WALL,4));
 		w1.add(new PortalWall(new Location(-2.5f, -3.5f), new Location(-1.5f, -3.5f), 3));
-		w1.add(new SolidWall(new Location(2f, -5f), new Location(4f, -4f), Color.green));
-		w1.add(new SolidWall(new Location(4f, -4f), new Location(6f, 3f), Color.blue));
-		w1.add(new SolidWall(new Location(0f, 5f), new Location(-5f, 5f), Color.gray));
-		w1.add(new SolidWall(new Location(-5f, 5f), new Location(-5f, 1f), Color.yellow));
-		w1.add(new SolidWall(new Location(-5f, 1f), new Location(-5f, 0f), Color.green));
-		w1.add(new SolidWall(new Location(-5f, 0f), new Location(-5f, -3f), Color.yellow));
+		w1.add(new SolidWall(new Location(2f, -5f), new Location(4f, -4f), Art.TEXTURE_WALL, 4));
+		w1.add(new SolidWall(new Location(4f, -4f), new Location(6f, 3f), Art.TEXTURE_WALL, 4));
+		w1.add(new SolidWall(new Location(0f, 5f), new Location(-5f, 5f), Art.TEXTURE_WALL, 4));
+		w1.add(new SolidWall(new Location(-5f, 5f), new Location(-5f, 1f), Art.TEXTURE_WALL, 4));
+		w1.add(new SolidWall(new Location(-5f, 1f), new Location(-5f, 0f), Art.TEXTURE_WALL3, 4));
+		w1.add(new SolidWall(new Location(-5f, 0f), new Location(-5f, -3f), Art.TEXTURE_WALL, 4));
 		w1.add(new PortalWall(new Location(6f, 3f), new Location(0f, 5f), 2));
 		
-		w2.add(new SolidWall(new Location(6f, 3f), new Location(20f, 10f), Color.cyan));
-		w2.add(new SolidWall(new Location(20f, 10f), new Location(16f, 13f), Color.orange));
-		w2.add(new SolidWall(new Location(16f, 13f), new Location(6f, 13f), Color.magenta));
-		w2.add(new SolidWall(new Location(6f, 13f), new Location(0f, 5f), Color.pink));
+		w2.add(new SolidWall(new Location(6f, 3f), new Location(20f, 10f), Art.TEXTURE_WALL));
+		w2.add(new SolidWall(new Location(20f, 10f), new Location(16f, 13f), Art.TEXTURE_WALL));
+		w2.add(new SolidWall(new Location(16f, 13f), new Location(6f, 13f), Art.TEXTURE_WALL));
+		w2.add(new SolidWall(new Location(6f, 13f), new Location(0f, 5f), Art.TEXTURE_WALL));
 		w2.add(new PortalWall(new Location(6f, 3f), new Location(0f, 5f), 1));
 		
 		w3.add(new PortalWall(new Location(-2.5f, -3.5f), new Location(-1.5f, -3.5f), 1));
-		w3.add(new SolidWall(new Location(-2.5f, -3.5f), new Location(-2.5f, -10f), Color.cyan));
-		w3.add(new SolidWall(new Location(-1.5f, -3.5f), new Location(-1.5f, -10f), Color.cyan));
+		w3.add(new SolidWall(new Location(-2.5f, -3.5f), new Location(-2.5f, -10f), Art.TEXTURE_WALL2));
+		w3.add(new SolidWall(new Location(-1.5f, -3.5f), new Location(-1.5f, -10f), Art.TEXTURE_WALL2));
 		w3.add(new PortalWall(new Location(-2.5f, -10f), new Location(-1.5f, -10f), 4));
 		
 		w4.add(new PortalWall(new Location(-2.5f, -10f), new Location(-1.5f, -10f), 3));
@@ -64,19 +64,19 @@ public class Map {
 		w4.add(new PortalWall(new Location(-1.5f, -10f), new Location(-1.5f, -12f), 7));
 		
 		w5.add(new PortalWall(new Location(-2.5f, -10f), new Location(-2.5f, -12f), 4));
-		w5.add(new SolidWall(new Location(-2.5f, -10f), new Location(-5f, -10f), Color.cyan));
-		w5.add(new SolidWall(new Location(-2.5f, -12f), new Location(-5f, -12f), Color.cyan));
-		w5.add(new SolidWall(new Location(-5f, -10f), new Location(-5f, -12f), Color.darkGray));
+		w5.add(new SolidWall(new Location(-2.5f, -10f), new Location(-5f, -10f), Art.TEXTURE_WALL3));
+		w5.add(new SolidWall(new Location(-2.5f, -12f), new Location(-5f, -12f), Art.TEXTURE_WALL3));
+		w5.add(new SolidWall(new Location(-5f, -10f), new Location(-5f, -12f), Art.TEXTURE_WALL3));
 		
 		w6.add(new PortalWall(new Location(-2.5f, -12f), new Location(-1.5f, -12f), 4));
-		w6.add(new SolidWall(new Location(-2.5f, -12f), new Location(-2.5f, -17f), Color.cyan));
-		w6.add(new SolidWall(new Location(-1.5f, -12f), new Location(0f, -16f), Color.cyan));
-		w6.add(new SolidWall(new Location(-2.5f, -17f), new Location(0f, -16f), Color.darkGray));
+		w6.add(new SolidWall(new Location(-2.5f, -12f), new Location(-2.5f, -17f), Art.TEXTURE_WALL3));
+		w6.add(new SolidWall(new Location(-1.5f, -12f), new Location(0f, -16f), Art.TEXTURE_WALL3));
+		w6.add(new SolidWall(new Location(-2.5f, -17f), new Location(0f, -16f), Art.TEXTURE_WALL3));
 		
 		w7.add(new PortalWall(new Location(-1.5f, -10f), new Location(-1.5f, -12f), 4));
-		w7.add(new SolidWall(new Location(-1.5f, -10f), new Location(5f, -10f), Color.cyan));
-		w7.add(new SolidWall(new Location(-1.5f, -12f), new Location(5f, -12f), Color.cyan));
-		w7.add(new SolidWall(new Location(5f, -10f), new Location(5f, -12f), Color.darkGray));
+		w7.add(new SolidWall(new Location(-1.5f, -10f), new Location(5f, -10f), Art.TEXTURE_WALL3));
+		w7.add(new SolidWall(new Location(-1.5f, -12f), new Location(5f, -12f), Art.TEXTURE_WALL3));
+		w7.add(new SolidWall(new Location(5f, -10f), new Location(5f, -12f), Art.TEXTURE_WALL3));
 		
 		
 		rooms.add(new ConvexRoom(w1, 1));
@@ -112,7 +112,7 @@ public class Map {
 					Location[] l = w.getLocations();
 					Point2D[] p = camera.getPoints2D(l);
 					//We assume the screen to have 16 units in the y coordinate
-					gA[1].setColor(w.getColor());
+					gA[1].setColor(Color.white);
 					gA[1].drawLine((int)p[0].getX(), (int)p[0].getY(), (int)p[1].getX(), (int)p[1].getY());
 				}
 			}

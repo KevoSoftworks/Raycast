@@ -9,6 +9,7 @@ public class InputHandler implements KeyListener{
 	boolean keydown = false;
 	boolean keyleft = false;
 	boolean keyright = false;
+	boolean keyshift = false;
 	
 	boolean rotateleft = false;
 	boolean rotateright = false;
@@ -35,6 +36,9 @@ public class InputHandler implements KeyListener{
 				break;
 			case KeyEvent.VK_D:
 				keyright = true;
+				break;
+			case KeyEvent.VK_SHIFT:
+				keyshift = true;
 				break;
 				
 			case KeyEvent.VK_LEFT:
@@ -65,6 +69,9 @@ public class InputHandler implements KeyListener{
 			break;
 		case KeyEvent.VK_D:
 			keyright = false;
+			break;
+		case KeyEvent.VK_SHIFT:
+			keyshift = false;
 			break;
 			
 		case KeyEvent.VK_LEFT:

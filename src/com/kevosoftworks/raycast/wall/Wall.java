@@ -2,26 +2,35 @@ package com.kevosoftworks.raycast.wall;
 
 import java.awt.Color;
 
+import com.kevosoftworks.raycast.Art;
 import com.kevosoftworks.raycast.Location;
 
 public class Wall{
 	
 	Location p1;
 	Location p2;
-	Color c;
-	float startHeight;
-	float endHeight;
+	int texNum;
+	float height;
 	
 	public Wall(Location p1, Location p2){
 		this.p1 = p1;
 		this.p2 = p2;
-		this.c = Color.black;
+		this.texNum = Art.TEXTURE_WALL;
+		this.height = 1;
 	}
 	
-	public Wall(Location p1, Location p2, Color c){
+	public Wall(Location p1, Location p2, int texNum){
 		this.p1 = p1;
 		this.p2 = p2;
-		this.c = c;
+		this.texNum = texNum;
+		this.height = 1;
+	}
+	
+	public Wall(Location p1, Location p2, int texNum, float height){
+		this.p1 = p1;
+		this.p2 = p2;
+		this.texNum = texNum;
+		this.height = height;
 	}
 	
 	public Location getLocation1(){
@@ -39,8 +48,12 @@ public class Wall{
 		return l;
 	}
 	
-	public Color getColor(){
-		return this.c;
+	public int getTextureNumber(){
+		return this.texNum;
+	}
+	
+	public float getHeight(){
+		return this.height;
 	}
 
 }
