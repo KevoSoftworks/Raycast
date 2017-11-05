@@ -2,13 +2,9 @@ package com.kevosoftworks.raycast;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Rectangle;
-import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
-import com.kevosoftworks.raycast.vector.Vector2;
 import com.kevosoftworks.raycast.wall.PortalWall;
 import com.kevosoftworks.raycast.wall.SolidWall;
 import com.kevosoftworks.raycast.wall.Wall;

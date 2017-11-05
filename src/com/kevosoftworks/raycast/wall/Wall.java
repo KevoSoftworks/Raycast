@@ -1,7 +1,5 @@
 package com.kevosoftworks.raycast.wall;
 
-import java.awt.Color;
-
 import com.kevosoftworks.raycast.Art;
 import com.kevosoftworks.raycast.Location;
 

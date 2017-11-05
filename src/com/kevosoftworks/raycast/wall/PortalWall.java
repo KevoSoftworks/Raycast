@@ -1,7 +1,5 @@
 package com.kevosoftworks.raycast.wall;
 
-import java.awt.Color;
-
 import com.kevosoftworks.raycast.Location;
 
 public class PortalWall extends Wall{

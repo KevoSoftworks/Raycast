@@ -1,6 +1,5 @@
 package com.kevosoftworks.raycast;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -21,6 +20,7 @@ public class ConvexRoom{
 	int[][] floorTex;
 	
 	float resComp = 8f;
+	float renderDist = 64f;
 	
 	public ConvexRoom(ArrayList<Wall> walls, int uuid){
 		this.uuid = uuid;
@@ -57,7 +57,6 @@ public class ConvexRoom{
 		Location pLoc2 = new Location(m.camera.getLocation().getX() + m.camera.direction.getX() + m.camera.plane.getX(), m.camera.getLocation().getY() + m.camera.direction.getY() + m.camera.plane.getY());
 		Point2D pCoord1 = m.camera.getPoint2D(pLoc1);
 		Point2D pCoord2 = m.camera.getPoint2D(pLoc2);
-		Point2D cCoord = m.camera.getPoint2D(m.camera.getLocation());
 		//Remap x-coordinate to [-1, 1] interval
 		float cameraX = (float) (2f * ((float)i/Main.RW) - 1f);
 		Vector2 rayDir = new Vector2(
@@ -81,25 +80,31 @@ public class ConvexRoom{
 							) / Math.sqrt(
 									Math.pow(pCoord2.getY() - pCoord1.getY(),2) + Math.pow(pCoord2.getX() - pCoord1.getX(),2)
 							));
-					//The 16f compensates for the resolution
-					float lH = (resComp*(float)Main.RH / dist);
-					if(lH > 255*Main.RH) lH = 255*Main.RH;
 					
-					Texture t = m.art.getTexture(w.getTextureNumber());
-					
-					BufferedImage bi = new BufferedImage(1, t.height, BufferedImage.TYPE_INT_ARGB);
-					int[] texture = t.getColumn(l[0].distance(intersect));
-					for(int y = 0; y < bi.getHeight(); y++){
-						bi.setRGB(0, y, texture[y]);
+					if(dist < renderDist){
+						//The 16f compensates for the resolution
+						float lH = (resComp*(float)Main.RH / dist);
+						if(lH > 255*Main.RH) lH = 255*Main.RH;
+						
+						Texture t = m.art.getTexture(w.getTextureNumber());
+						
+						BufferedImage bi = new BufferedImage(1, t.height, BufferedImage.TYPE_INT_ARGB);
+						int[] texture = t.getColumn(l[0].distance(intersect));
+						for(int y = 0; y < bi.getHeight(); y++){
+							bi.setRGB(0, y, texture[y]);
+						}
+						((Graphics2D)gA[1]).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+						//gA[1].drawImage(bi, i, (int)((float)Main.RH * 0.5f - lH * 0.5f), 1, (int)lH, null);
+						for(int k = 0; k < (int)Math.ceil(w.getHeight()); k++){
+							if((int)Math.floor((float)Main.RH * 0.5f - lH * 0.5f - k*lH) + (int)Math.ceil(lH) < 0) continue;
+							gA[1].drawImage(bi, i, (int)Math.floor((float)Main.RH * 0.5f - lH * 0.5f - k*lH), 1, (int)Math.ceil(lH), null);
+						}
+					} else {
+						dist = renderDist;
 					}
-					((Graphics2D)gA[1]).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-					//gA[1].drawImage(bi, i, (int)((float)Main.RH * 0.5f - lH * 0.5f), 1, (int)lH, null);
-					for(int k = 0; k < (int)Math.ceil(w.getHeight()); k++){
-						if((int)Math.floor((float)Main.RH * 0.5f - lH * 0.5f - k*lH) + (int)Math.ceil(lH) < 0) continue;
-						gA[1].drawImage(bi, i, (int)Math.floor((float)Main.RH * 0.5f - lH * 0.5f - k*lH), 1, (int)Math.ceil(lH), null);
-					}
-					
 					//render floors
+					float lH = (resComp*(float)Main.RH / dist);
+					if(dist > renderDist) lH = 0f;
 					int wH = (int)Math.floor((float)Main.RH * 0.5f - lH * 0.5f) + (int)Math.ceil(lH);
 					if(wH < Main.RH){
 						BufferedImage biF = new BufferedImage(1, Main.RH - wH, BufferedImage.TYPE_INT_ARGB);
@@ -115,7 +120,6 @@ public class ConvexRoom{
 						}
 						gA[1].drawImage(biF, i, wH, 1, biF.getHeight(), null);
 					}
-					return;
 					
 					/*int rc = (int) (w.getColor().getRed() * (2*(float)lH / (float)Main.RH));
 					int gc = (int) (w.getColor().getGreen() * (2*(float)lH / (float)Main.RH));
