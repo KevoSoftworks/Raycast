@@ -32,5 +32,36 @@ public class Vector2 extends Vector{
 		*/
 		return null;
 	}
+	
+	public float getLength(){
+		return (float)Math.sqrt(x*x + y*y);
+	}
+	
+	public Vector2 normalised(){
+		float length = this.getLength();
+		if(length == 0) return new Vector2(0,0);
+		return new Vector2(this.x / length, this.y / length);
+	}
+	
+	public void normalise(){
+		float length = this.getLength();
+		if(length == 0){
+			this.x = 0f;
+			this.y = 0f;
+		} else {
+			this.x /= length;
+			this.y /= length;
+		}
+	}
+	
+	public void add(Vector2 v){
+		this.x += v.getX();
+		this.y += v.getY();
+	}
+	
+	public void multiply(float m){
+		this.x *= m;
+		this.y *= m;
+	}
 
 }

@@ -9,12 +9,14 @@ public class InputHandler implements KeyListener{
 	boolean keydown = false;
 	boolean keyleft = false;
 	boolean keyright = false;
+	boolean keyshift = false;
 	
 	boolean rotateleft = false;
 	boolean rotateright = false;
 	
 	boolean reset = false;
 	boolean switchview = false;
+	boolean renderMap = true;
 	
 	public InputHandler(){
 		
@@ -34,6 +36,9 @@ public class InputHandler implements KeyListener{
 				break;
 			case KeyEvent.VK_D:
 				keyright = true;
+				break;
+			case KeyEvent.VK_SHIFT:
+				keyshift = true;
 				break;
 				
 			case KeyEvent.VK_LEFT:
@@ -65,6 +70,9 @@ public class InputHandler implements KeyListener{
 		case KeyEvent.VK_D:
 			keyright = false;
 			break;
+		case KeyEvent.VK_SHIFT:
+			keyshift = false;
+			break;
 			
 		case KeyEvent.VK_LEFT:
 			rotateleft = false;
@@ -79,6 +87,9 @@ public class InputHandler implements KeyListener{
 		
 		case KeyEvent.VK_E:
 			switchview = true;
+			break;
+		case KeyEvent.VK_Q:
+			renderMap = !renderMap;
 			break;
 		}
 	}

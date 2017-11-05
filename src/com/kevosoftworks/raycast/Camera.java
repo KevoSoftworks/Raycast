@@ -2,22 +2,31 @@ package com.kevosoftworks.raycast;
 
 import java.awt.geom.Point2D;
 
+import com.kevosoftworks.raycast.matrix.Matrix;
 import com.kevosoftworks.raycast.matrix.Matrix2;
 import com.kevosoftworks.raycast.vector.Vector2;
+import com.kevosoftworks.raycast.wall.PortalWall;
+import com.kevosoftworks.raycast.wall.Wall;
 
 public class Camera {
 	
+	Map m;
 	Location l;
-	int fov = 90;
 	float UPH = 8f;
+	
+	float walkSpeed = 0.04f;
+	float rotateSpeed = 0.025f;
 	
 	Vector2 direction;
 	Vector2 plane;
 	
-	public Camera(Location l){
+	private Matrix2 perpRotMat = this.getRotationMatrix((float)(Math.PI / 2d));
+	
+	public Camera(Map m, Location l){
+		this.m = m;
 		this.l = l;
-		direction = new Vector2(0,-1);
-		plane = new Vector2(1,0);
+		direction = new Vector2(0f,-0.001f);
+		plane = new Vector2(0.001f,0f);
 	}
 	
 	public Location getLocation(){
@@ -31,49 +40,67 @@ public class Camera {
 		//this.l.setY((float)(5f*Math.sin(Main.ticks / 256d)));
 		//this.l.setRot((float)(Math.PI * 0.0));
 		//this.l.setRot(0.5f*(float)Math.sin(Main.ticks/512d));
-		if(i.reset) this.l = new Location(0,0,0);
+		Vector2 nd = this.direction.normalised();
+		Vector2 ndRot = this.perpRotMat.multiply(this.direction).normalised();
+
 		if(i.rotateleft){
-			this.direction = this.getRotationMatrix(-0.05f).multiply(direction);
-			this.plane = this.getRotationMatrix(-0.05f).multiply(plane);
+			this.direction = this.getRotationMatrix(-rotateSpeed).multiply(direction);
+			this.plane = this.getRotationMatrix(-rotateSpeed).multiply(plane);
 		}
 		if(i.rotateright){
-			this.direction = this.getRotationMatrix(0.05f).multiply(direction);
-			this.plane = this.getRotationMatrix(0.05f).multiply(plane);
+			this.direction = this.getRotationMatrix(rotateSpeed).multiply(direction);
+			this.plane = this.getRotationMatrix(rotateSpeed).multiply(plane);
 		}
 		
-		if(i.keyup) this.l.setY(this.l.getY() - 0.05f);
-		if(i.keydown) this.l.setY(this.l.getY() + 0.05f);
-		if(i.keyleft) this.l.setX(this.l.getX() - 0.05f);
-		if(i.keyright) this.l.setX(this.l.getX() + 0.05f);
+		Vector2 movement = new Vector2(0,0);
+		
+		if(i.keyup){
+			movement.add(nd);
+		}
+		if(i.keydown){
+			movement.add(new Vector2(-nd.getX(),-nd.getY()));
+		}
+		if(i.keyleft){
+			movement.add(new Vector2(-ndRot.getX(), -ndRot.getY()));
+		}
+		if(i.keyright){
+			movement.add(ndRot);
+		}
+		
+		movement.normalise();
+		movement.multiply(walkSpeed);
+		if(i.keyshift) movement.multiply(3f);
+		
+		//Collision
+		for(Wall w:m.getCurrentRoom().getWalls()){
+			Location is = m.getIntersectionLocation(new Location(this.l.getX() + movement.getX(), this.l.getY() + movement.getY()), w.getLocations());
+			if(is != null){
+				if(is.getX() >= Math.min(this.l.getX(), this.l.getX() + movement.getX()) && is.getX() <= Math.max(this.l.getX(), this.l.getX() + movement.getX())){
+					if(is.getY() >= Math.min(this.l.getY(), this.l.getY() + movement.getY()) && is.getY() <= Math.max(this.l.getY(), this.l.getY() + movement.getY())){
+						if(w instanceof PortalWall){
+							m.curuuid = ((PortalWall)w).getRoomUuid();
+						} else {
+							movement = new Vector2(0, 0);
+						}
+					}
+				}
+			}
+		}
+		this.l.setX(this.l.getX() + movement.getX());
+		this.l.setY(this.l.getY() + movement.getY());
 	}
 	
 	public void render(){
 		
 	}
 	
-	public float minAngle(){
-		return (this.l.getRot() - (0.5f * this.getFovInRadians())) % 2f * (float)Math.PI;
-	}
-	
-	public float maxAngle(){
-		return (this.l.getRot() + (0.5f * this.getFovInRadians())) % 2f * (float)Math.PI;
-	}
-	
-	public float radiansPerPixel(){
-		return this.getFovInRadians() / Main.RW;
-	}
-	
-	public float getFovInRadians(){
-		return ((float)fov) * (float)Math.PI / 180f;
-	}
-	
 	public Point2D getPoint2D(Location l){
-		float x = ((l.getX() - this.getLocation().getX()) / (UPH / Main.RH * Main.RW)) * (float)Math.cos(this.getLocation().getRot()) + ((l.getY() - this.getLocation().getY()) / UPH) * (float)Math.sin(this.getLocation().getRot());
-		float y = ((l.getX() - this.getLocation().getX()) / (UPH / Main.RH * Main.RW)) * -1 * (float)Math.sin(this.getLocation().getRot()) + ((l.getY() - this.getLocation().getY()) / UPH) * (float)Math.cos(this.getLocation().getRot());
+		float x = ((l.getX() - this.getLocation().getX()) / (UPH / (float)Main.RH * (float)Main.RW)) * (float)Math.cos(this.getLocation().getRot()) + ((l.getY() - this.getLocation().getY()) / UPH) * (float)Math.sin(this.getLocation().getRot());
+		float y = ((l.getX() - this.getLocation().getX()) / (UPH / (float)Main.RH * (float)Main.RW)) * -1f * (float)Math.sin(this.getLocation().getRot()) + ((l.getY() - this.getLocation().getY()) / UPH) * (float)Math.cos(this.getLocation().getRot());
 		
-		return new Point2D.Float(
-					(int)Math.floor(((x + 1f) / 2f) * (float)Main.RW),
-					(int)Math.floor(((y + 1f) / 2f) * (float)Main.RH)
+		return new Point2D.Double(
+					((x + 1d) / 2f) * (float)Main.RW,
+					((y + 1d) / 2f) * (float)Main.RH
 				);
 	}
 	
