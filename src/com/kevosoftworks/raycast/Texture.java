@@ -40,7 +40,7 @@ public class Texture {
 		return ret;
 	}
 	
-	public int[][] getPixelArray(){
+	private int[][] getPixelArray(){
 		int[][] ret = new int[height][width];
 		int row = 0, col = 0;
 		for(int i = 0; i < this.raw.length; i += this.hasAlpha ? 4 : 3){

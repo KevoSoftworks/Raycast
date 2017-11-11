@@ -2,7 +2,6 @@ package com.kevosoftworks.raycast;
 
 import java.awt.geom.Point2D;
 
-import com.kevosoftworks.raycast.matrix.Matrix;
 import com.kevosoftworks.raycast.matrix.Matrix2;
 import com.kevosoftworks.raycast.vector.Vector2;
 import com.kevosoftworks.raycast.wall.PortalWall;

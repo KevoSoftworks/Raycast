@@ -1,7 +1,5 @@
 package com.kevosoftworks.raycast;
 
-import java.awt.Color;
-
 public class Location {
 	
 	float x;

@@ -4,6 +4,8 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
@@ -14,10 +16,10 @@ public class Main extends Canvas implements Runnable{
 	public static final int TICKRATE = 64;
 	
 	private static final String TITLE = "Raycast Engine";
-	private static final int WH = 1080/2;
-	private static final int WW = 1920/2;
-	public static final int RH = 288/2;
-	public static final int RW = 512/2;
+	private static final int WH = 1080;
+	private static final int WW = 1920;
+	public static final int RH = 288;
+	public static final int RW = 512;
 	private JFrame jframe;
 	
 	private BufferedImage img;
@@ -25,6 +27,7 @@ public class Main extends Canvas implements Runnable{
 	
 	public double tps;
 	public double fps;
+	public boolean shouldRender = true;
 	public static int ticks = 0;
 	
 	boolean running = false;
@@ -55,27 +58,37 @@ public class Main extends Canvas implements Runnable{
 
 	public void run() {
 		//Do things
-		long lastTickTime = System.nanoTime();
-		long lastRenderTime = System.currentTimeMillis();
-		long nsPerTick = 1000000000l / (long) TICKRATE;
-		long deltaTickTime;
-		long deltaRenderTime;
-		long currentTickTime;
-		long currentRenderTime;
+		long lastTime = System.nanoTime();
+		double nsPerTick = 1000000000D/TICKRATE;
+		
+		int ticks = 0;
+		int frames = 0;
+		
+		long lastTimer = System.currentTimeMillis();
+		double delta = 0;
 		
 		while(running){
-			currentTickTime = System.nanoTime();
-			deltaTickTime = currentTickTime - lastTickTime;
-			if(deltaTickTime >= nsPerTick){
-				lastTickTime = System.nanoTime();
-				tps = 1000000000d / ((double)deltaTickTime);
+			long now = System.nanoTime();
+			delta += (now - lastTime) / nsPerTick;
+			lastTime = now;
+			
+			while(delta >= 1){
+				ticks++;
 				tick();
-				
-				currentRenderTime = System.currentTimeMillis();
-				deltaRenderTime = currentRenderTime - lastRenderTime;
-				lastRenderTime = currentRenderTime;
-				fps = 1000d / ((double)deltaRenderTime);
+				delta -= 1;
+			}
+			if(shouldRender){
+				frames++;
 				render();
+			}
+			
+			if(System.currentTimeMillis() - lastTimer >= 1000){
+				lastTimer += 1000;
+				System.out.println("TPS: " + ticks + "; FPS: " + frames + "; " + RW + "x" + RH);
+				fps = frames;
+				tps = ticks;
+				frames = 0;
+				ticks = 0;
 			}
 		}
 	}
@@ -84,6 +97,10 @@ public class Main extends Canvas implements Runnable{
 		Graphics[] gA = new Graphics[2];
 		gA[0] = jframe.getGraphics();
 		gA[1] = img.getGraphics();
+		
+		((Graphics2D)gA[1]).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		((Graphics2D)gA[0]).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		((Graphics2D)gA[0]).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
 		gA[1].setColor(Color.black);
 		gA[1].fillRect(0, 0, WW, WH);
@@ -96,7 +113,6 @@ public class Main extends Canvas implements Runnable{
 	
 	public void tick(){
 		ticks++;
-		System.out.println("TPS: " + Math.round(tps) + "; FPS: " + Math.round(fps) + "; " + RW + "x" + RH);
 		map.tick(input);
 	}
 	
