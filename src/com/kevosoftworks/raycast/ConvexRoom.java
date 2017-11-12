@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.util.ArrayList;
 
+import com.kevosoftworks.raycast.art.Texture;
 import com.kevosoftworks.raycast.vector.Vector2;
 import com.kevosoftworks.raycast.wall.PortalWall;
 import com.kevosoftworks.raycast.wall.Wall;
@@ -23,7 +24,7 @@ public class ConvexRoom{
 	
 	float resComp = 16f;
 	//float renderDist = 6400000f;
-	float lightDist = 64f;
+	float lightDist = 96f;
 	float maxLight = 0.8f;
 	
 	public ConvexRoom(ArrayList<Wall> walls, int uuid, int floorTex, int ceilTex){
@@ -128,7 +129,7 @@ public class ConvexRoom{
 						
 						int floorTexX = (int)Math.abs((curFloorX * (float)floor.width) % (float)floor.width);
 						int floorTexY = (int)Math.abs((curFloorY * (float)floor.height) % (float)floor.height);
-						biF.setRGB(0, y - 1 - wH, darkenColor(floor.pA[floorTexX][floorTexY], sf2));
+						biF.setRGB(0, y - 1 - wH, darkenColor(floor.pA[floorTexY][floorTexX], sf2));
 					}
 					gA[1].drawImage(biF, i, wH, 1, biF.getHeight(), null);
 				}
@@ -153,7 +154,7 @@ public class ConvexRoom{
 							int floorTexX = (int)Math.abs((curFloorX * (float)floor.width) % (float)floor.width);
 							int floorTexY = (int)Math.abs((curFloorY * (float)floor.height) % (float)floor.height);
 							try{
-								biF.setRGB(0, y - maxPixel, darkenColor(ceil.pA[floorTexX][floorTexY], sf2));
+								biF.setRGB(0, y - maxPixel, darkenColor(ceil.pA[floorTexY][floorTexX], sf2));
 							} catch(ArrayIndexOutOfBoundsException e){
 								System.out.println("y:" + y + "; maxP: " + maxPixel + "; biF: " + biF.getHeight());
 							}

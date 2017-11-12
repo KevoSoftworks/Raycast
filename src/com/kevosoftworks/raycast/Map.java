@@ -3,8 +3,10 @@ package com.kevosoftworks.raycast;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import com.kevosoftworks.raycast.art.Art;
 import com.kevosoftworks.raycast.wall.PortalWall;
 import com.kevosoftworks.raycast.wall.SolidWall;
 import com.kevosoftworks.raycast.wall.Wall;
@@ -17,7 +19,7 @@ public class Map {
 	int curuuid = 1;
 	
 	boolean isTopDown = false;
-	boolean renderMap = true;
+	boolean renderMap = false;
 	
 	public Map(){
 		art = new Art();
@@ -95,6 +97,9 @@ public class Map {
 	}
 	
 	public void render(Graphics[] gA){
+		gA[2].drawImage(art.text("TPS: " + Main.tps + "; FPS: " + Main.fps + "; Resolution: " + Main.RW + "x" + Main.RH), 0, 0, null);
+		gA[2].drawImage(art.text("Use WASD to move, the arrow keys to rotate and SHIFT to sprint", Color.CYAN), Main.RW / 2 - art.text("Use WASD to move, the arrow keys to rotate and SHIFT to sprint").getWidth() / 2, (int) (Main.RH - 20 + 7*Math.sin((float)Main.ticks / 15f)), null);
+		
 		Location dLoc = new Location(camera.getLocation().getX() + camera.direction.getX(), camera.getLocation().getY() + camera.direction.getY());
 		Location pLoc1 = new Location(camera.getLocation().getX() + camera.direction.getX() - camera.plane.getX(), camera.getLocation().getY() + camera.direction.getY() - camera.plane.getY());
 		Location pLoc2 = new Location(camera.getLocation().getX() + camera.direction.getX() + camera.plane.getX(), camera.getLocation().getY() + camera.direction.getY() + camera.plane.getY());

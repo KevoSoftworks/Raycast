@@ -16,7 +16,7 @@ public class InputHandler implements KeyListener{
 	
 	boolean reset = false;
 	boolean switchview = false;
-	boolean renderMap = true;
+	boolean renderMap = false;
 	
 	public InputHandler(){
 		

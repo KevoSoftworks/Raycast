@@ -1,7 +1,7 @@
 package com.kevosoftworks.raycast.wall;
 
-import com.kevosoftworks.raycast.Art;
 import com.kevosoftworks.raycast.Location;
+import com.kevosoftworks.raycast.art.Art;
 
 public class Wall{
 	

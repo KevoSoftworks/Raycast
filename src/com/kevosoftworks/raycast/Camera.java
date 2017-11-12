@@ -68,7 +68,7 @@ public class Camera {
 		
 		movement.normalise();
 		movement.multiply(walkSpeed);
-		if(i.keyshift) movement.multiply(3f);
+		if(i.keyshift) movement.multiply(1.5f);
 		
 		//Collision
 		for(Wall w:m.getCurrentRoom().getWalls()){

@@ -1,5 +1,6 @@
 package com.kevosoftworks.raycast;
 
+import java.awt.AlphaComposite;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -23,10 +24,11 @@ public class Main extends Canvas implements Runnable{
 	private JFrame jframe;
 	
 	private BufferedImage img;
+	private BufferedImage ui;
 	public InputHandler input;
 	
-	public double tps;
-	public double fps;
+	public static double tps;
+	public static double fps;
 	public boolean shouldRender = true;
 	public static int ticks = 0;
 	
@@ -52,6 +54,7 @@ public class Main extends Canvas implements Runnable{
 		jframe.setUndecorated(true);
 		jframe.setVisible(true);
 		
+		ui = new BufferedImage(RW, RH, BufferedImage.TYPE_INT_ARGB);
 		img = new BufferedImage(RW, RH, BufferedImage.TYPE_INT_ARGB);
 		map = new Map();
 	}
@@ -94,9 +97,14 @@ public class Main extends Canvas implements Runnable{
 	}
 	
 	public void render(){
-		Graphics[] gA = new Graphics[2];
+		Graphics[] gA = new Graphics[3];
 		gA[0] = jframe.getGraphics();
 		gA[1] = img.getGraphics();
+		gA[2] = ui.getGraphics();
+		
+		((Graphics2D)gA[2]).setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
+		gA[2].fillRect(0,0,WW,WH);
+		((Graphics2D)gA[2]).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
 		
 		((Graphics2D)gA[1]).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 		((Graphics2D)gA[0]).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -106,8 +114,11 @@ public class Main extends Canvas implements Runnable{
 		gA[1].fillRect(0, 0, WW, WH);
 		map.render(gA);
 		
+		gA[1].drawImage(ui, 0, 0, null);
 		gA[0].drawImage(img, 0, 0, WW, WH, null);
 		
+		gA[2].dispose();
+		gA[1].dispose();
 		gA[0].dispose();
 	}
 	

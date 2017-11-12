@@ -1,4 +1,4 @@
-package com.kevosoftworks.raycast;
+package com.kevosoftworks.raycast.art;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
@@ -10,19 +10,21 @@ import javax.imageio.ImageIO;
 public class Texture {
 	
 	byte[] raw;
-	int[][] pA;
+	public int[][] pA;
 	boolean hasAlpha;
-	int width;
-	int height;
+	public int width;
+	public int height;
+	
+	protected BufferedImage image;
 	
 	public Texture(String uri){
 		try {
-			BufferedImage image = ImageIO.read(Texture.class.getResource(uri));
-			DataBuffer db = image.getRaster().getDataBuffer();
+			this.image = ImageIO.read(Texture.class.getResource(uri));
+			DataBuffer db = this.image.getRaster().getDataBuffer();
 			this.raw = ((DataBufferByte) db).getData();
-			this.hasAlpha = image.getAlphaRaster() != null;
-			this.width = image.getWidth();
-			this.height = image.getHeight();
+			this.hasAlpha = this.image.getAlphaRaster() != null;
+			this.width = this.image.getWidth();
+			this.height = this.image.getHeight();
 			this.pA = this.getPixelArray();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
