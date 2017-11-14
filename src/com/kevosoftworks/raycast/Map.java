@@ -4,7 +4,9 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.kevosoftworks.raycast.art.Art;
 import com.kevosoftworks.raycast.wall.PortalWall;
@@ -20,6 +22,11 @@ public class Map {
 	
 	boolean isTopDown = false;
 	boolean renderMap = false;
+	
+	HashMap<Integer, Long> time;
+	HashMap<Integer, Long> timeWall;
+	HashMap<Integer, Long> timeFloor;
+	HashMap<Integer, Long> timeCeil;
 	
 	public Map(){
 		art = new Art();
@@ -97,6 +104,11 @@ public class Map {
 	}
 	
 	public void render(Graphics[] gA){
+		time = new HashMap<Integer, Long>();
+		timeWall = new HashMap<Integer, Long>();
+		timeFloor = new HashMap<Integer, Long>();
+		timeCeil = new HashMap<Integer, Long>();
+		
 		gA[2].drawImage(art.text("TPS: " + Main.tps + "; FPS: " + Main.fps + "; Resolution: " + Main.RW + "x" + Main.RH), 0, 0, null);
 		gA[2].drawImage(art.text("Use WASD to move, the arrow keys to rotate and SHIFT to sprint", Color.CYAN), Main.RW / 2 - art.text("Use WASD to move, the arrow keys to rotate and SHIFT to sprint").getWidth() / 2, (int) (Main.RH - 20 + 7*Math.sin((float)Main.ticks / 15f)), null);
 		
@@ -124,7 +136,25 @@ public class Map {
 		}
 		if(!isTopDown){
 			this.getCurrentRoom().render(this, gA, this.curuuid);
-		}			
+		}
+		
+		int num = 1;
+		double sum = 0;
+		DecimalFormat df = new DecimalFormat("#.##");
+		for(int key:time.keySet()){
+			double val = time.get(key)/1000000d;
+			double valWall = timeWall.get(key)/1000000d;
+			double valFloor = timeFloor.get(key)/1000000d;
+			double valCeil = timeCeil.get(key)/1000000d;
+			gA[1].drawImage(art.text(key+ ": " + df.format(val) + "ms"), 0, 10*num, null);
+			gA[1].drawImage(art.text("| W=" + df.format(valWall) + "ms;"), 75, 10*num, null);
+			gA[1].drawImage(art.text("F=" + df.format(valFloor) + "ms;"), 150, 10*num, null);
+			gA[1].drawImage(art.text("C=" + df.format(valCeil) + "ms;"), 225, 10*num, null);
+			num++;
+			sum += val;
+		}
+		gA[1].drawImage(art.text("Total: " + df.format(sum) + "ms;"), 0, 10*(num+1), null);
+		gA[1].drawImage(art.text("FPS: " + df.format(1/(sum/1000d))), 85, 10*(num+1), null);
 	}
     
     public Location getIntersectionLocation(Location ray, Location[] wall){

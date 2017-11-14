@@ -32,6 +32,8 @@ public class Art {
 	
 	private Font font;
 	
+	private Skybox skybox;
+	
 	public Art(){
 		none = new Texture("/textures/default.png");
 		wall = new Texture("/textures/wall.png");
@@ -46,6 +48,7 @@ public class Art {
 		grass = new Texture("/textures/grass.png");
 		
 		font = new Font("/font.png");
+		skybox = new Skybox("/skybox.png");
 	}
 	
 	public Texture getTexture(int num){
@@ -73,6 +76,10 @@ public class Art {
 			default:
 				return none;
 		}
+	}
+	
+	public Skybox getSkybox(){
+		return this.skybox;
 	}
 	
 	public BufferedImage text(String t, Color c, float tr){

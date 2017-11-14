@@ -25,6 +25,7 @@ public class Main extends Canvas implements Runnable{
 	
 	private BufferedImage img;
 	private BufferedImage ui;
+	private BufferedImage depthBuf;
 	public InputHandler input;
 	
 	public static double tps;
@@ -56,6 +57,7 @@ public class Main extends Canvas implements Runnable{
 		
 		ui = new BufferedImage(RW, RH, BufferedImage.TYPE_INT_ARGB);
 		img = new BufferedImage(RW, RH, BufferedImage.TYPE_INT_ARGB);
+		depthBuf = new BufferedImage(RW, RH, BufferedImage.TYPE_INT_ARGB);
 		map = new Map();
 	}
 
@@ -97,10 +99,11 @@ public class Main extends Canvas implements Runnable{
 	}
 	
 	public void render(){
-		Graphics[] gA = new Graphics[3];
+		Graphics[] gA = new Graphics[4];
 		gA[0] = jframe.getGraphics();
 		gA[1] = img.getGraphics();
 		gA[2] = ui.getGraphics();
+		gA[3] = depthBuf.getGraphics();
 		
 		((Graphics2D)gA[2]).setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
 		gA[2].fillRect(0,0,WW,WH);
