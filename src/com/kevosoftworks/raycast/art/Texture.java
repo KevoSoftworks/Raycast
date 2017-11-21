@@ -4,65 +4,58 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
 public class Texture {
 	
-	byte[] raw;
-	public int[][] pA;
-	boolean hasAlpha;
+	protected BufferedImage image;
 	public int width;
 	public int height;
 	
-	protected BufferedImage image;
+	private static final float THRESHOLD_DIST = 48f;
+	private static final int MAX_MIPMAP = 8;
+	
+	ArrayList<Mipmap> mm;
 	
 	public Texture(String uri){
 		try {
 			this.image = ImageIO.read(Texture.class.getResource(uri));
-			DataBuffer db = this.image.getRaster().getDataBuffer();
-			this.raw = ((DataBufferByte) db).getData();
-			this.hasAlpha = this.image.getAlphaRaster() != null;
 			this.width = this.image.getWidth();
 			this.height = this.image.getHeight();
-			this.pA = this.getPixelArray();
+			
+			this.mm = new ArrayList<Mipmap>();
+			for(int i = 1; i <= MAX_MIPMAP; i++){
+				mm.add(new Mipmap(this.image, 1/(float)(i)));
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	public int[] getColumn(float dist){
-		int col = (int)Math.floor(dist * height % (width));
-		int[] ret = new int[height];
+	public int[] getColumn(float walldist, float dist){
+		int threshPass = (int) Math.floor(dist/THRESHOLD_DIST);
+		if(threshPass > MAX_MIPMAP) threshPass = MAX_MIPMAP;
+		if(threshPass < 1) threshPass = 1;
 		
-		for(int i = 0; i < this.height; i++){
-			ret[i] = this.pA[i][col];
-		}
-		return ret;
-	}
-	
-	private int[][] getPixelArray(){
-		int[][] ret = new int[height][width];
-		int row = 0, col = 0;
-		for(int i = 0; i < this.raw.length; i += this.hasAlpha ? 4 : 3){
-			int offset = this.hasAlpha ? 1 : 0;
-			int argb = 0;
-			argb += this.hasAlpha ? (raw[i] & 0xff) << 24 : -16777216;
-			argb += (raw[i+offset] & 0xff);
-			argb += (raw[i+offset+1] & 0xff) << 8;
-			argb += (raw[i+offset+2] & 0xff) << 16;
-			ret[row][col] = argb;
-			col++;
-			if(col == this.width){
-				row++;
-				col = 0;
-			}
+		Mipmap m = mm.get(threshPass-1);
+		int[][] pA = m.getPixelArray();
+		int col = (int)Math.floor(walldist * m.height % (m.width));
+		int[] ret = new int[m.height];
+		
+		for(int i = 0; i < m.height; i++){
+			ret[i] = pA[i][col];
 		}
 		return ret;
 	}
 	
 	public BufferedImage getBufferedImage(){
 		return this.image;
+	}
+	
+	public Mipmap getMipmap(int i){
+		return this.mm.get(i);
 	}
 }

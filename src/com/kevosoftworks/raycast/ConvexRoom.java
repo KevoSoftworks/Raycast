@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.util.ArrayList;
 
+import com.kevosoftworks.raycast.art.Mipmap;
 import com.kevosoftworks.raycast.art.Texture;
 import com.kevosoftworks.raycast.vector.Vector2;
 import com.kevosoftworks.raycast.wall.PortalWall;
@@ -28,6 +29,8 @@ public class ConvexRoom{
 	float maxLight = 0.4f;
 	
 	boolean forceLightRender = true;
+	
+	static final int FLOOR_MIPMAP = 2;
 	
 	public ConvexRoom(ArrayList<Wall> walls, int uuid, int floorTex, int ceilTex){
 		this.uuid = uuid;
@@ -56,7 +59,7 @@ public class ConvexRoom{
 		}
 	}
 	
-	public void renderRay(Map m, Graphics[] gA, int i, int originroom, int maxPixel){
+	public void renderRay(Map m, Graphics[] gA, int i, int originroom, int maxPixel){	
 		if(!m.time.containsKey(uuid)){
 			m.time.put(uuid, 0l);
 			m.timeWall.put(uuid, 0l);
@@ -69,6 +72,8 @@ public class ConvexRoom{
 		forceLightRender = true;
 		Texture floor = m.art.getTexture(this.floorTexNum);
 		Texture ceil = m.art.getTexture(this.ceilTexNum);
+		Mipmap floorm = floor.getMipmap((maxPixel == 0 || this.uuid == originroom) ? 0 : FLOOR_MIPMAP);
+		Mipmap ceilm = ceil.getMipmap((maxPixel == 0 || this.uuid == originroom) ? 0 : FLOOR_MIPMAP);
 		
 		Location pLoc1 = new Location(m.camera.getLocation().getX() + m.camera.direction.getX() - m.camera.plane.getX(), m.camera.getLocation().getY() + m.camera.direction.getY() - m.camera.plane.getY());
 		Location pLoc2 = new Location(m.camera.getLocation().getX() + m.camera.direction.getX() + m.camera.plane.getX(), m.camera.getLocation().getY() + m.camera.direction.getY() + m.camera.plane.getY());
@@ -84,6 +89,8 @@ public class ConvexRoom{
 		for(Wall w:walls){
 			long curTimeWall = System.nanoTime();
 			Location[] l = w.getLocations();
+			//We still want to do some culling here.
+			
 			Location intersect = m.getIntersectionLocation(rLoc, l);
 			if(intersect != null){
 				Point2D iCoord = m.camera.getPoint2D(intersect);
@@ -118,11 +125,11 @@ public class ConvexRoom{
 				}				
 				if(portalH < w.getHeight()){						
 					Texture t = m.art.getTexture(w.getTextureNumber());
+					int[] texture = t.getColumn(l[0].distance(intersect), dist);
 					
-					BufferedImage bi = new BufferedImage(1, (int)(t.height * (w.getHeight() - portalH)), BufferedImage.TYPE_INT_ARGB);
-					int[] texture = t.getColumn(l[0].distance(intersect));
+					BufferedImage bi = new BufferedImage(1, (int)(texture.length * (w.getHeight() - portalH)), BufferedImage.TYPE_INT_ARGB);
 					for(int y = 0; y < bi.getHeight(); y++){
-						bi.setRGB(0, y, texture[y % t.height]);
+						bi.setRGB(0, y, texture[y % texture.length]);
 					}
 					
 					RescaleOp ro = new RescaleOp(
@@ -132,43 +139,14 @@ public class ConvexRoom{
 					if(sf > 0 || forceLightRender)gA[1].drawImage(ro.filter(bi, null), i, wallTop, 1, (int)Math.ceil(lH * (w.getHeight()-portalH))+1, null);
 				}
 				m.timeWall.put(uuid, m.timeWall.get(uuid) + System.nanoTime() - curTimeWall - ot2);
-				
-				//render floors
-				long curTimeFloor = System.nanoTime();
-				int wH = (int)Math.floor((float)Main.RH * 0.5f - lH * 0.5f) + (int)Math.ceil(lH);
-				if(wH < Main.RH){
-					BufferedImage biF = new BufferedImage(1, Main.RH - wH, BufferedImage.TYPE_INT_ARGB);
-					for(int y = wH + 1; y <= Main.RH; y++){
-						float curDist = (float)Main.RH / (2f * (float)y - (float)Main.RH);
-						if(curDist < 0) continue;
-						float sf2 = 1f - (resComp * curDist)/lightDist;
-						if(sf2 < 0){
-							sf2 = 0;
-							if(!forceLightRender) continue;
-						}
-						if(sf2 > maxLight) sf2 = maxLight;
-						
-						float weight = (float)curDist / (float)(dist / resComp);
-						float curFloorX = (float) (weight * intersect.getX() + (1f-weight) * m.camera.getLocation().getX());
-						float curFloorY = (float) (weight * intersect.getY() + (1f-weight) * m.camera.getLocation().getY());
-						
-						int floorTexX = (int)Math.abs((curFloorX * (float)floor.width) % (float)floor.width);
-						int floorTexY = (int)Math.abs((curFloorY * (float)floor.height) % (float)floor.height);
-						biF.setRGB(0, y - 1 - wH, darkenColor(floor.pA[floorTexY][floorTexX], sf2));
-					}
-					gA[1].drawImage(biF, i, wH, 1, biF.getHeight(), null);
-				}
-				m.timeFloor.put(uuid, m.timeFloor.get(uuid) + System.nanoTime() - curTimeFloor);
-				
-				//render ceiling
-				long curTimeCeil = System.nanoTime();
-				if(w.getHeight() == 1){
-					wH = (int)Math.floor((float)Main.RH * 0.5f - lH * 0.5f - (w.getHeight()-1f)*lH);
-					if(wH - maxPixel > 0){
-						BufferedImage biF = new BufferedImage(1, wH, BufferedImage.TYPE_INT_ARGB);
-						for(int y = maxPixel; y < wH; y++){
-							if(y >= biF.getHeight()) break;
-							float curDist = -1f*(float)(Main.RH) / (2f * (float)y - (float)Main.RH);
+				if(m.renderFloor){
+					//render floors
+					long curTimeFloor = System.nanoTime();
+					int wH = (int)Math.floor((float)Main.RH * 0.5f - lH * 0.5f) + (int)Math.ceil(lH);
+					if(wH < Main.RH){
+						BufferedImage biF = new BufferedImage(1, Main.RH - wH, BufferedImage.TYPE_INT_ARGB);
+						for(int y = wH + 1; y <= Main.RH; y++){
+							float curDist = (float)Main.RH / (2f * (float)y - (float)Main.RH);
 							if(curDist < 0) continue;
 							float sf2 = 1f - (resComp * curDist)/lightDist;
 							if(sf2 < 0){
@@ -178,21 +156,51 @@ public class ConvexRoom{
 							if(sf2 > maxLight) sf2 = maxLight;
 							
 							float weight = (float)curDist / (float)(dist / resComp);
-							float curFloorX = (float) (weight * intersect.getX() + (1f-weight) * m.camera.getLocation().getX())*1f;
-							float curFloorY = (float) (weight * intersect.getY() + (1f-weight) * m.camera.getLocation().getY())*1f;
+							float curFloorX = (float) (weight * intersect.getX() + (1f-weight) * m.camera.getLocation().getX());
+							float curFloorY = (float) (weight * intersect.getY() + (1f-weight) * m.camera.getLocation().getY());
 							
-							int floorTexX = (int)Math.abs((curFloorX * (float)floor.width) % (float)floor.width);
-							int floorTexY = (int)Math.abs((curFloorY * (float)floor.height) % (float)floor.height);
-							try{
-								biF.setRGB(0, y - maxPixel, darkenColor(ceil.pA[floorTexY][floorTexX], sf2));
-							} catch(ArrayIndexOutOfBoundsException e){
-								System.out.println("y:" + y + "; maxP: " + maxPixel + "; biF: " + biF.getHeight());
-							}
+							int floorTexX = (int)Math.abs((curFloorX * (float)floorm.width) % (float)floorm.width);
+							int floorTexY = (int)Math.abs((curFloorY * (float)floorm.height) % (float)floorm.height);
+							biF.setRGB(0, y - 1 - wH, darkenColor(floorm.pA[floorTexY][floorTexX], sf2));
 						}
-						gA[1].drawImage(biF, i, maxPixel, 1, biF.getHeight(), null);
+						gA[1].drawImage(biF, i, wH, 1, biF.getHeight(), null);
 					}
+					m.timeFloor.put(uuid, m.timeFloor.get(uuid) + System.nanoTime() - curTimeFloor);
+					
+					//render ceiling
+					long curTimeCeil = System.nanoTime();
+					if(w.getHeight() == 1){
+						wH = (int)Math.floor((float)Main.RH * 0.5f - lH * 0.5f - (w.getHeight()-1f)*lH);
+						if(wH - maxPixel > 0){
+							BufferedImage biF = new BufferedImage(1, wH, BufferedImage.TYPE_INT_ARGB);
+							for(int y = maxPixel; y < wH; y++){
+								if(y >= biF.getHeight()) break;
+								float curDist = -1f*(float)(Main.RH) / (2f * (float)y - (float)Main.RH);
+								if(curDist < 0) continue;
+								float sf2 = 1f - (resComp * curDist)/lightDist;
+								if(sf2 < 0){
+									sf2 = 0;
+									if(!forceLightRender) continue;
+								}
+								if(sf2 > maxLight) sf2 = maxLight;
+								
+								float weight = (float)curDist / (float)(dist / resComp);
+								float curFloorX = (float) (weight * intersect.getX() + (1f-weight) * m.camera.getLocation().getX())*1f;
+								float curFloorY = (float) (weight * intersect.getY() + (1f-weight) * m.camera.getLocation().getY())*1f;
+								
+								int floorTexX = (int)Math.abs((curFloorX * (float)ceilm.width) % (float)ceilm.width);
+								int floorTexY = (int)Math.abs((curFloorY * (float)ceilm.height) % (float)ceilm.height);
+								try{
+									biF.setRGB(0, y - maxPixel, darkenColor(ceilm.pA[floorTexY][floorTexX], sf2));
+								} catch(ArrayIndexOutOfBoundsException e){
+									System.out.println("y:" + y + "; maxP: " + maxPixel + "; biF: " + biF.getHeight());
+								}
+							}
+							gA[1].drawImage(biF, i, maxPixel, 1, biF.getHeight(), null);
+						}
+					}
+					m.timeCeil.put(uuid, m.timeCeil.get(uuid) + System.nanoTime() - curTimeCeil);
 				}
-				m.timeCeil.put(uuid, m.timeCeil.get(uuid) + System.nanoTime() - curTimeCeil);
 			}
 			if(intersect == null){
 				m.timeWall.put(this.uuid, m.timeWall.get(uuid) + System.nanoTime() - curTimeWall);

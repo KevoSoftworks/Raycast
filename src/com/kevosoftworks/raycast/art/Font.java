@@ -22,7 +22,7 @@ public class Font extends Texture{
 		
 		int offset = 0;
 		for(int i = 0; i < widths.length; i++){
-			BufferedImage bi = new BufferedImage(widths[i], this.height, BufferedImage.TYPE_INT_ARGB);
+			BufferedImage bi = new BufferedImage(widths[i], this.getMipmap(0).height, BufferedImage.TYPE_INT_ARGB);
 			Graphics g = bi.getGraphics();
 			g.drawImage(this.image, -offset, 0, null);
 			g.dispose();
@@ -38,7 +38,7 @@ public class Font extends Texture{
 			width += widths[characters.indexOf(t.charAt(i))];
 		}
 		
-		BufferedImage res = new BufferedImage(width, this.height, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage res = new BufferedImage(width, this.getMipmap(0).height, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = res.getGraphics();
 		
 		RescaleOp ro = new RescaleOp(

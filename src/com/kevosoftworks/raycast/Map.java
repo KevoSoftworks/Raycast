@@ -23,6 +23,8 @@ public class Map {
 	boolean isTopDown = false;
 	boolean renderMap = false;
 	
+	boolean renderFloor = true;
+	
 	HashMap<Integer, Long> time;
 	HashMap<Integer, Long> timeWall;
 	HashMap<Integer, Long> timeFloor;
@@ -96,9 +98,9 @@ public class Map {
 	public void tick(InputHandler input){
 		camera.tick(input);
 		//System.out.println("Min: " + camera.minAngle() + "; Max: " + camera.maxAngle());
-		if(input.switchview){
-			input.switchview = false;
-			isTopDown = !isTopDown;
+		if(input.renderFloor){
+			input.renderFloor = false;
+			renderFloor = !renderFloor;
 		}
 		renderMap = input.renderMap;
 	}
