@@ -19,6 +19,10 @@ public class Camera {
 	Vector2 direction;
 	Vector2 plane;
 	
+	int mouseX = 0;
+	int mouseY = 0;
+	float mouseSensitivity = 0.03f;
+	
 	private Matrix2 perpRotMat = this.getRotationMatrix((float)(Math.PI / 2d));
 	
 	public Camera(Map m, Location l){
@@ -33,22 +37,19 @@ public class Camera {
 	}
 	
 	public void tick(InputHandler i){
-		//this.l.setX((float)(3f*Math.sin(Main.ticks / 128d)));
-		//this.l.setX(-0.5f);
-		//this.l.setY(5f);
-		//this.l.setY((float)(5f*Math.sin(Main.ticks / 256d)));
-		//this.l.setRot((float)(Math.PI * 0.0));
-		//this.l.setRot(0.5f*(float)Math.sin(Main.ticks/512d));
 		Vector2 nd = this.direction.normalised();
 		Vector2 ndRot = this.perpRotMat.multiply(this.direction).normalised();
-
-		if(i.rotateleft){
-			this.direction = this.getRotationMatrix(-rotateSpeed).multiply(direction);
-			this.plane = this.getRotationMatrix(-rotateSpeed).multiply(plane);
-		}
-		if(i.rotateright){
-			this.direction = this.getRotationMatrix(rotateSpeed).multiply(direction);
-			this.plane = this.getRotationMatrix(rotateSpeed).multiply(plane);
+		
+		if(i.mouseX < (Main.screenRes.width / 2) || i.mouseX > (Main.screenRes.width / 2)){
+			if(i.inFocus){
+				int diff = i.mouseX - Main.screenRes.width / 2;
+				Matrix2 rotMat = this.getRotationMatrix(diff * rotateSpeed * mouseSensitivity);
+				this.direction = rotMat.multiply(direction);
+				this.plane = rotMat.multiply(plane);
+				i.mouseX = Main.screenRes.width / 2;
+				i.mouseY = Main.screenRes.height / 2;
+				i.r.mouseMove(Main.screenRes.width / 2, Main.screenRes.height / 2);
+			}
 		}
 		
 		Vector2 movement = new Vector2(0,0);
@@ -68,7 +69,7 @@ public class Camera {
 		
 		movement.normalise();
 		movement.multiply(walkSpeed);
-		if(i.keyshift) movement.multiply(3f);
+		if(i.keyshift) movement.multiply(1.5f);
 		
 		//Collision
 		for(Wall w:m.getCurrentRoom().getWalls()){

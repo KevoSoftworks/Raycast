@@ -10,6 +10,11 @@ public class Vector2 extends Vector{
 		this.y = y;
 	}
 	
+	public Vector2(Vector2 v){
+		this.x = v.getX();
+		this.y = v.getY();
+	}
+	
 	public float getX(){
 		return this.x;
 	}

@@ -1,4 +1,8 @@
-package com.kevosoftworks.raycast;
+package com.kevosoftworks.raycast.art;
+
+import java.awt.Color;
+import java.awt.image.BufferedImage;
+
 
 public class Art {
 	
@@ -26,6 +30,10 @@ public class Art {
 	private Texture wall3;
 	private Texture grass;
 	
+	private Font font;
+	
+	private Skybox skybox;
+	
 	public Art(){
 		none = new Texture("/textures/default.png");
 		wall = new Texture("/textures/wall.png");
@@ -38,6 +46,9 @@ public class Art {
 		wall2 = new Texture("/textures/wall2.png");
 		wall3 = new Texture("/textures/wall3.png");
 		grass = new Texture("/textures/grass.png");
+		
+		font = new Font("/font.png");
+		skybox = new Skybox("/skybox.png");
 	}
 	
 	public Texture getTexture(int num){
@@ -65,6 +76,22 @@ public class Art {
 			default:
 				return none;
 		}
+	}
+	
+	public Skybox getSkybox(){
+		return this.skybox;
+	}
+	
+	public BufferedImage text(String t, Color c, float tr){
+		return font.generateString(t, c, tr);
+	}
+	
+	public BufferedImage text(String t, Color c){
+		return font.generateString(t, c);
+	}
+	
+	public BufferedImage text(String t){
+		return font.generateString(t);
 	}
 
 }

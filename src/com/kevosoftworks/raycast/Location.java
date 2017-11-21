@@ -1,5 +1,7 @@
 package com.kevosoftworks.raycast;
 
+import com.kevosoftworks.raycast.vector.Vector2;
+
 public class Location {
 	
 	float x;
@@ -45,5 +47,8 @@ public class Location {
 	public float distance(Location l){
 		return (float)Math.sqrt(Math.pow(this.x - l.getX(),2) + Math.pow(this.y - l.getY(), 2));
 	}
-
+	
+	public Vector2 getVector(){
+		return new Vector2(this.x, this.y);
+	}
 }
