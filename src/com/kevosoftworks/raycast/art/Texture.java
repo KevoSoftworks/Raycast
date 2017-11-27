@@ -14,8 +14,8 @@ public class Texture {
 	public int width;
 	public int height;
 	
-	private static final float THRESHOLD_DIST = 48f;
-	private static final int MAX_MIPMAP = 8;
+	private static final float THRESHOLD_DIST = 2.5f;
+	private static final int MAX_MIPMAP = 16;
 	
 	ArrayList<Mipmap> mm;
 	

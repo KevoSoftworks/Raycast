@@ -9,7 +9,9 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
+import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.awt.image.VolatileImage;
 
 import javax.swing.JFrame;
 
@@ -19,18 +21,18 @@ public class Main extends Canvas implements Runnable{
 	public static final int TICKRATE = 64;
 	
 	private static final String TITLE = "Raycast Engine";
-	public static final boolean FULLSCREEN = false;
-	public static int WH = 1080 / 2;
-	public static int WW = 1920 / 2;
-	public static final int RH = 288;
-	public static final int RW = 512;
+	public static final boolean FULLSCREEN = true;
+	public static final boolean FULLRESOLUTION = false;
+	public static int WH = 1080;
+	public static int WW = 1920;
+	public static final int RH = FULLRESOLUTION ? WH : 200;
+	public static final int RW = FULLRESOLUTION ? WW : 320;
 	public static Dimension screenRes;
 	private JFrame jframe;
 	
-	private BufferedImage img;
-	private BufferedImage ui;
-	private BufferedImage depthBuf;
+	private BufferedImage world;
 	public InputHandler input;
+	private BufferStrategy bs;
 	
 	public static double tps;
 	public static double fps;
@@ -70,13 +72,14 @@ public class Main extends Canvas implements Runnable{
 		jframe.toFront();
 		jframe.requestFocusInWindow();
 		
-		jframe.setCursor(tk.createCustomCursor(new BufferedImage( 1, 1, BufferedImage.TYPE_INT_ARGB), new Point(), null));
+		jframe.setCursor(tk.createCustomCursor(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB), new Point(), null));
 		
 		jframe.setVisible(true);
 		
-		ui = new BufferedImage(RW, RH, BufferedImage.TYPE_INT_ARGB);
-		img = new BufferedImage(RW, RH, BufferedImage.TYPE_INT_ARGB);
-		depthBuf = new BufferedImage(RW, RH, BufferedImage.TYPE_INT_ARGB);
+		world = new BufferedImage(RW, RH, BufferedImage.TYPE_INT_ARGB);
+		
+		jframe.createBufferStrategy(2);
+		bs = jframe.getBufferStrategy();
 		map = new Map();
 	}
 
@@ -118,30 +121,22 @@ public class Main extends Canvas implements Runnable{
 	}
 	
 	public void render(){
-		Graphics[] gA = new Graphics[4];
-		gA[0] = jframe.getGraphics();
-		gA[1] = img.getGraphics();
-		gA[2] = ui.getGraphics();
-		gA[3] = depthBuf.getGraphics();
-		
-		((Graphics2D)gA[2]).setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
-		gA[2].fillRect(0,0,WW,WH);
-		((Graphics2D)gA[2]).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
+		Graphics[] gA = new Graphics[2];
+		gA[0] = bs.getDrawGraphics();
+		gA[1] = world.getGraphics();
 		
 		((Graphics2D)gA[1]).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 		((Graphics2D)gA[0]).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-		((Graphics2D)gA[0]).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
 		gA[1].setColor(Color.black);
 		gA[1].fillRect(0, 0, WW, WH);
 		map.render(gA);
 		
-		gA[1].drawImage(ui, 0, 0, null);
-		gA[0].drawImage(img, 0, 0, WW, WH, null);
+		gA[0].drawImage(world, 0, 0, WW, WH, null);
 		
-		gA[2].dispose();
 		gA[1].dispose();
 		gA[0].dispose();
+		bs.show();
 	}
 	
 	public void tick(){
