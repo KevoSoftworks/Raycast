@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.kevosoftworks.raycast.art.Art;
+import com.kevosoftworks.raycast.matrix.Matrix2;
+import com.kevosoftworks.raycast.vector.Vector2;
 import com.kevosoftworks.raycast.wall.PortalWall;
 import com.kevosoftworks.raycast.wall.SolidWall;
 import com.kevosoftworks.raycast.wall.Wall;
@@ -21,7 +23,7 @@ public class Map {
 	int curuuid = 1;
 	
 	boolean isTopDown = false;
-	boolean renderMap = false;
+	boolean renderMap = true;
 	
 	boolean renderFloor = true;
 	
@@ -29,6 +31,11 @@ public class Map {
 	HashMap<Integer, Long> timeWall;
 	HashMap<Integer, Long> timeFloor;
 	HashMap<Integer, Long> timeCeil;
+	
+	double[] zIndex;
+	int[] zBot;
+	int[] zTop;
+	Location[] zLocation;
 	
 	public Map(){
 		art = new Art();
@@ -49,10 +56,10 @@ public class Map {
 		w1.add(new SolidWall(new Location(2f, -5f), new Location(4f, -4f), Art.TEXTURE_WALL, 2));
 		w1.add(new SolidWall(new Location(4f, -4f), new Location(6f, 3f), Art.TEXTURE_WALL, 2));
 		w1.add(new SolidWall(new Location(0f, 5f), new Location(-5f, 5f), Art.TEXTURE_NONE, 2));
-		w1.add(new SolidWall(new Location(-5f, 5f), new Location(-5f, 1f), Art.TEXTURE_WALL_BLUE, 2));
+		w1.add(new SolidWall(new Location(-5f, 5f), new Location(-5f, 1f), Art.TEXTURE_WALL3, 2));
 		w1.add(new SolidWall(new Location(-5f, 1f), new Location(-5f, 0f), Art.TEXTURE_NONE, 2));
-		w1.add(new SolidWall(new Location(-5f, 0f), new Location(-5f, -3f), Art.TEXTURE_WALL_BLUE, 2));
-		w1.add(new PortalWall(new Location(6f, 3f), new Location(0f, 5f), Art.TEXTURE_WALL, 2, 1, 2));
+		w1.add(new SolidWall(new Location(-5f, 0f), new Location(-5f, -3f), Art.TEXTURE_WALL3, 2));
+		w1.add(new PortalWall(new Location(6f, 3f), new Location(0f, 5f), Art.TEXTURE_WALL3, 2, 1, 2));
 		
 		w2.add(new SolidWall(new Location(6f, 3f), new Location(20f, 10f), Art.TEXTURE_WALL2));
 		w2.add(new SolidWall(new Location(20f, 10f), new Location(16f, 13f), Art.TEXTURE_WALL2));
@@ -66,8 +73,8 @@ public class Map {
 		w3.add(new PortalWall(new Location(-2.5f, -10f), new Location(-1.5f, -10f), Art.TEXTURE_WALL, 2, 1, 4));
 		
 		w4.add(new PortalWall(new Location(-2.5f, -10f), new Location(-1.5f, -10f), Art.TEXTURE_WALL, 1, 1, 3));
-		w4.add(new PortalWall(new Location(-2.5f, -12f), new Location(-1.5f, -12f), Art.TEXTURE_WALL, 1, 1, 6));
-		w4.add(new PortalWall(new Location(-2.5f, -10f), new Location(-2.5f, -12f), Art.TEXTURE_WALL, 1, 1, 5));
+		w4.add(new PortalWall(new Location(-2.5f, -12f), new Location(-1.5f, -12f), Art.TEXTURE_WALL3, 1, 1, 6));
+		w4.add(new PortalWall(new Location(-2.5f, -10f), new Location(-2.5f, -12f), Art.TEXTURE_WALL3, 1, 1, 5));
 		w4.add(new PortalWall(new Location(-1.5f, -10f), new Location(-1.5f, -12f), Art.TEXTURE_WALL, 1, 1, 7));
 		
 		w5.add(new PortalWall(new Location(-2.5f, -10f), new Location(-2.5f, -12f), Art.TEXTURE_WALL, 1, 1, 4));
@@ -97,6 +104,7 @@ public class Map {
 	
 	public void tick(InputHandler input){
 		camera.tick(input);
+		camera.setFOV(80f);
 		//System.out.println("Min: " + camera.minAngle() + "; Max: " + camera.maxAngle());
 		if(input.renderFloor){
 			input.renderFloor = false;
@@ -106,6 +114,16 @@ public class Map {
 	}
 	
 	public void render(Graphics[] gA){
+		zIndex = new double[Main.RW];
+		zLocation = new Location[Main.RW];
+		zBot = new int[Main.RW];
+		zTop = new int[Main.RW];
+		
+		for(int i=0; i<zBot.length; i++){
+			zBot[i] = -1;
+			zTop[i] = -1;
+		}
+		
 		time = new HashMap<Integer, Long>();
 		timeWall = new HashMap<Integer, Long>();
 		timeFloor = new HashMap<Integer, Long>();
@@ -117,6 +135,54 @@ public class Map {
 		Point2D dCoord = camera.getPoint2D(dLoc);
 		Point2D pCoord1 = camera.getPoint2D(pLoc1);
 		Point2D pCoord2 = camera.getPoint2D(pLoc2);
+		if(!isTopDown){
+			this.getCurrentRoom().render(this, gA, this.curuuid);
+			//Draw floor
+			if(this.getCurrentRoom().hasFloor()){
+				BufferedImage floor = new BufferedImage(Main.RW, Main.RH, BufferedImage.TYPE_INT_ARGB);
+				/*for(int y = 1+Main.RH/2; y < Main.RH; y++){
+					float distance = 1f - 1/(2*((float)y/(float)Main.RH)-1);
+					for(int x = 0; x < Main.RW; x++){
+						if(zBot[x] >= y) continue;
+						float perpDist = ((float)zBot[x] / (float)y) * (float)zIndex[x];
+						float actDist = (float) Math.sqrt(perpDist*perpDist + 0.25);
+						float xCoord = 2*((float)x / (float)Main.RW) - 1;
+						float yCoord = 2*((float)y / (float)Main.RH) - 1;
+						int xTex = 5;//(int)(8*xCoord*perpDist % 8);
+						//System.out.println(xTex);
+						int yTex = (int)(8*yCoord*perpDist % 8);
+						if(xTex == 0 || yTex == 0){
+							floor.setRGB(x, y, 0xFF0000FF);
+						} else {
+							floor.setRGB(x,y,0xFF000000);
+						}
+					}
+					
+				}*/
+				Matrix2 perpMat = new Matrix2(new Vector2(0,1), new Vector2(-1,0)); 
+				Vector2 xV = camera.direction.normalised();
+				Vector2 yV = perpMat.multiply(xV); 
+				for(int y = Main.RH / 2 + 1; y < Main.RH; y+=8){
+					for(int x = 0; x < Main.RW; x+=8){
+						Vector2 curVec = new Vector2(x,y).normalised();//new Vector2(x - 0.5f*Main.RW,y - 0.5f*Main.RH).normalised();
+						Vector2 curX = curVec.normalised();
+						Vector2 curY = curVec.normalised();
+						
+						if(curVec.dot(xV) < 0.1 && curVec.dot(yV) < 0.1){
+							floor.setRGB(x, y, 0xFF0000FF);
+						} else {
+							floor.setRGB(x,y,0xFF000000);
+						}
+					}
+				}
+				floor.setRGB((int)(xV.getX() * 0.25 * Main.RW) + Main.RW/2, (int)(xV.getY() * 0.25 * Main.RH) + Main.RH/2,0xFF00FF00);
+				floor.setRGB((int)(yV.getX() * 0.25 * Main.RW) + Main.RW/2, (int)(yV.getY() * 0.25 * Main.RH) + Main.RH/2,0xFFFF0000);
+				//floor.setRGB((int)(xV.getX() * 0.5 * Main.RW) + Main.RW/2, Main.RH/2,0xFF00FF00);
+				//floor.setRGB((int)(yV.getX() * 0.5 * Main.RW) + Main.RW/2, Main.RH/2,0xFFFF0000);
+				gA[1].drawImage(floor, 0, 0, null);
+			}
+		}
+		
 		if(renderMap){
 			for(ConvexRoom cr:rooms){
 				Wall[] walls = cr.getWalls();
@@ -127,14 +193,11 @@ public class Map {
 					gA[1].setColor(Color.white);
 					gA[1].drawLine((int)p[0].getX(), (int)p[0].getY(), (int)p[1].getX(), (int)p[1].getY());
 				}
-			}
+			}			
 			//Draw camera angle
 			gA[1].setColor(Color.white);
 			gA[1].drawLine((int)(0.5f * Main.RW), (int)(0.5f * Main.RH), (int)dCoord.getX(), (int)dCoord.getY());
 			gA[1].drawLine((int)pCoord1.getX(), (int)pCoord1.getY(), (int)pCoord2.getX(), (int)pCoord2.getY());
-		}
-		if(!isTopDown){
-			this.getCurrentRoom().render(this, gA, this.curuuid);
 		}
 		
 		int num = 1;
