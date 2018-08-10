@@ -7,8 +7,8 @@ import java.awt.image.RescaleOp;
 
 public class Font extends Texture{
 	
-	private String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?()_-+=#|:;., abcdefghijklmnopqrstuvwxyz";
-	private int[] widths = {6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 8, 6, 7, 6, 7, 6, 6, 6, 6, 6, 10, 8, 6, 5, 6, 4, 6, 6, 6, 6, 6, 6, 6, 6, 2, 6, 4, 4, 6, 6, 6, 6, 6, 2, 2, 2, 2, 2, 4, 5, 5, 4, 5, 5, 6, 5, 5, 2, 4, 5, 2, 7, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 5};
+	private String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?()_-+=#|:;.,*/\\<>[]\'\"%~`^@ abcdefghijklmnopqrstuvwxyz";
+	private int[] widths = {/*A*/5, 5, 4, 5, 4, 4, 5, 5, 4, 5, 5, 4, 6, 5, 5, 5, 5, 5, 5, 4, 5, 5, 6, 5, 5, 4, /*0*/5, 3, 5, 5, 5, 5, 5, 5, 5, 5, /*!*/2, 5, 3, 3, 5, 4, 4, 4, 6, 2, 2, 2, 2, 3, 4, 6, 6, 4, 4, 3, 3, 2, 4, 6, 5, 3, 4, 6, /*Space*/4, /*a*/5, 5, 4, 5, 5, 5, 5, 5, 2, 3, 5, 2, 6, 5, 5, 5, 5, 4, 5, 4, 5, 5, 6, 4, 5, 5};
 	private BufferedImage[] chars;
 
 	public Font(String uri){

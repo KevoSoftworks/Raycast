@@ -23,7 +23,8 @@ public class Map {
 	int curuuid = 1;
 	
 	boolean isTopDown = false;
-	boolean renderMap = true;
+	boolean renderMap = false;
+	boolean renderDebugText = false;
 	
 	boolean renderFloor = true;
 	
@@ -50,8 +51,8 @@ public class Map {
 		ArrayList<Wall>w6 = new ArrayList<Wall>();
 		ArrayList<Wall>w7 = new ArrayList<Wall>();
 
-		w1.add(new SolidWall(new Location(-5f, -3f), new Location(-2.5f, -3.5f), Art.TEXTURE_WALL_DARK_RED,2));
-		w1.add(new SolidWall(new Location(-1.5f, -3.5f), new Location(2f, -5f), Art.TEXTURE_WALL_DARK_RED,2));
+		w1.add(new SolidWall(new Location(-5f, -3f), new Location(-2.5f, -3.5f), Art.TEXTURE_ORIENTAL_WALL,2));
+		w1.add(new SolidWall(new Location(-1.5f, -3.5f), new Location(2f, -5f), Art.TEXTURE_ORIENTAL_WALL,2));
 		w1.add(new PortalWall(new Location(-2.5f, -3.5f), new Location(-1.5f, -3.5f), Art.TEXTURE_WALL, 2, 2, 3));
 		w1.add(new SolidWall(new Location(2f, -5f), new Location(4f, -4f), Art.TEXTURE_WALL, 2));
 		w1.add(new SolidWall(new Location(4f, -4f), new Location(6f, 3f), Art.TEXTURE_WALL, 2));
@@ -68,8 +69,8 @@ public class Map {
 		w2.add(new PortalWall(new Location(6f, 3f), new Location(0f, 5f), Art.TEXTURE_WALL2, 1, 1, 1));
 		
 		w3.add(new PortalWall(new Location(-2.5f, -3.5f), new Location(-1.5f, -3.5f), Art.TEXTURE_WALL, 2, 2, 1));
-		w3.add(new SolidWall(new Location(-2.5f, -3.5f), new Location(-2.5f, -10f), Art.TEXTURE_WALL_RED, 2));
-		w3.add(new SolidWall(new Location(-1.5f, -3.5f), new Location(-1.5f, -10f), Art.TEXTURE_WALL_RED, 2));
+		w3.add(new SolidWall(new Location(-2.5f, -3.5f), new Location(-2.5f, -10f), Art.TEXTURE_ORIENTAL_WALL, 2));
+		w3.add(new SolidWall(new Location(-1.5f, -3.5f), new Location(-1.5f, -10f), Art.TEXTURE_ORIENTAL_WALL, 2));
 		w3.add(new PortalWall(new Location(-2.5f, -10f), new Location(-1.5f, -10f), Art.TEXTURE_WALL, 2, 1, 4));
 		
 		w4.add(new PortalWall(new Location(-2.5f, -10f), new Location(-1.5f, -10f), Art.TEXTURE_WALL, 1, 1, 3));
@@ -78,9 +79,9 @@ public class Map {
 		w4.add(new PortalWall(new Location(-1.5f, -10f), new Location(-1.5f, -12f), Art.TEXTURE_WALL, 1, 1, 7));
 		
 		w5.add(new PortalWall(new Location(-2.5f, -10f), new Location(-2.5f, -12f), Art.TEXTURE_WALL, 1, 1, 4));
-		w5.add(new SolidWall(new Location(-2.5f, -10f), new Location(-5f, -10f), Art.TEXTURE_WALL_DARK_BLUE));
-		w5.add(new SolidWall(new Location(-2.5f, -12f), new Location(-5f, -12f), Art.TEXTURE_WALL_DARK_BLUE));
-		w5.add(new SolidWall(new Location(-5f, -10f), new Location(-5f, -12f), Art.TEXTURE_WALL_DARK_BLUE));
+		w5.add(new SolidWall(new Location(-2.5f, -10f), new Location(-5f, -10f), Art.TEXTURE_ORIENTAL_WALL));
+		w5.add(new SolidWall(new Location(-2.5f, -12f), new Location(-5f, -12f), Art.TEXTURE_ORIENTAL_WALL));
+		w5.add(new SolidWall(new Location(-5f, -10f), new Location(-5f, -12f), Art.TEXTURE_ORIENTAL_WALL));
 		
 		w6.add(new PortalWall(new Location(-2.5f, -12f), new Location(-1.5f, -12f), Art.TEXTURE_WALL, 1, 1, 4));
 		w6.add(new SolidWall(new Location(-2.5f, -12f), new Location(-2.5f, -17f), Art.TEXTURE_WALL_GREEN));
@@ -111,6 +112,7 @@ public class Map {
 			renderFloor = !renderFloor;
 		}
 		renderMap = input.renderMap;
+		renderDebugText = input.renderDebugText;
 	}
 	
 	public void render(Graphics[] gA){
@@ -137,50 +139,6 @@ public class Map {
 		Point2D pCoord2 = camera.getPoint2D(pLoc2);
 		if(!isTopDown){
 			this.getCurrentRoom().render(this, gA, this.curuuid);
-			//Draw floor
-			if(this.getCurrentRoom().hasFloor()){
-				BufferedImage floor = new BufferedImage(Main.RW, Main.RH, BufferedImage.TYPE_INT_ARGB);
-				/*for(int y = 1+Main.RH/2; y < Main.RH; y++){
-					float distance = 1f - 1/(2*((float)y/(float)Main.RH)-1);
-					for(int x = 0; x < Main.RW; x++){
-						if(zBot[x] >= y) continue;
-						float perpDist = ((float)zBot[x] / (float)y) * (float)zIndex[x];
-						float actDist = (float) Math.sqrt(perpDist*perpDist + 0.25);
-						float xCoord = 2*((float)x / (float)Main.RW) - 1;
-						float yCoord = 2*((float)y / (float)Main.RH) - 1;
-						int xTex = 5;//(int)(8*xCoord*perpDist % 8);
-						//System.out.println(xTex);
-						int yTex = (int)(8*yCoord*perpDist % 8);
-						if(xTex == 0 || yTex == 0){
-							floor.setRGB(x, y, 0xFF0000FF);
-						} else {
-							floor.setRGB(x,y,0xFF000000);
-						}
-					}
-					
-				}*/
-				Matrix2 perpMat = new Matrix2(new Vector2(0,1), new Vector2(-1,0)); 
-				Vector2 xV = camera.direction.normalised();
-				Vector2 yV = perpMat.multiply(xV); 
-				for(int y = Main.RH / 2 + 1; y < Main.RH; y+=8){
-					for(int x = 0; x < Main.RW; x+=8){
-						Vector2 curVec = new Vector2(x,y).normalised();//new Vector2(x - 0.5f*Main.RW,y - 0.5f*Main.RH).normalised();
-						Vector2 curX = curVec.normalised();
-						Vector2 curY = curVec.normalised();
-						
-						if(curVec.dot(xV) < 0.1 && curVec.dot(yV) < 0.1){
-							floor.setRGB(x, y, 0xFF0000FF);
-						} else {
-							floor.setRGB(x,y,0xFF000000);
-						}
-					}
-				}
-				floor.setRGB((int)(xV.getX() * 0.25 * Main.RW) + Main.RW/2, (int)(xV.getY() * 0.25 * Main.RH) + Main.RH/2,0xFF00FF00);
-				floor.setRGB((int)(yV.getX() * 0.25 * Main.RW) + Main.RW/2, (int)(yV.getY() * 0.25 * Main.RH) + Main.RH/2,0xFFFF0000);
-				//floor.setRGB((int)(xV.getX() * 0.5 * Main.RW) + Main.RW/2, Main.RH/2,0xFF00FF00);
-				//floor.setRGB((int)(yV.getX() * 0.5 * Main.RW) + Main.RW/2, Main.RH/2,0xFFFF0000);
-				gA[1].drawImage(floor, 0, 0, null);
-			}
 		}
 		
 		if(renderMap){
@@ -199,27 +157,28 @@ public class Map {
 			gA[1].drawLine((int)(0.5f * Main.RW), (int)(0.5f * Main.RH), (int)dCoord.getX(), (int)dCoord.getY());
 			gA[1].drawLine((int)pCoord1.getX(), (int)pCoord1.getY(), (int)pCoord2.getX(), (int)pCoord2.getY());
 		}
-		
-		int num = 1;
-		double sum = 0;
-		DecimalFormat df = new DecimalFormat("#.##");
-		for(int key:time.keySet()){
-			double val = time.get(key)/1000000d;
-			double valWall = timeWall.get(key)/1000000d;
-			double valFloor = timeFloor.get(key)/1000000d;
-			double valCeil = timeCeil.get(key)/1000000d;
-			gA[1].drawImage(art.text(key+ ": " + df.format(val) + "ms"), 0, 10*num, null);
-			gA[1].drawImage(art.text("| W=" + df.format(valWall) + "ms;"), 75, 10*num, null);
-			gA[1].drawImage(art.text("F=" + df.format(valFloor) + "ms;"), 150, 10*num, null);
-			gA[1].drawImage(art.text("C=" + df.format(valCeil) + "ms;"), 225, 10*num, null);
-			num++;
-			sum += val;
+		if(renderDebugText){
+			int num = 1;
+			double sum = 0;
+			DecimalFormat df = new DecimalFormat("#.##");
+			for(int key:time.keySet()){
+				double val = time.get(key)/1000000d;
+				double valWall = timeWall.get(key)/1000000d;
+				double valFloor = timeFloor.get(key)/1000000d;
+				double valCeil = timeCeil.get(key)/1000000d;
+				gA[1].drawImage(art.text(key+ ": " + df.format(val) + "ms"), 0, 10*num, null);
+				gA[1].drawImage(art.text("| W=" + df.format(valWall) + "ms;"), 75, 10*num, null);
+				gA[1].drawImage(art.text("F=" + df.format(valFloor) + "ms;"), 150, 10*num, null);
+				gA[1].drawImage(art.text("C=" + df.format(valCeil) + "ms;"), 225, 10*num, null);
+				num++;
+				sum += val;
+			}
+			gA[1].drawImage(art.text("Total: " + df.format(sum) + "ms;"), 0, 10*(num+1), null);
+			gA[1].drawImage(art.text("FPS: " + df.format(1/(sum/1000d))), 85, 10*(num+1), null);
+			
+			gA[1].drawImage(art.text("TPS: " + Main.tps + "; FPS: " + Main.fps + "; Resolution: " + Main.RW + "x" + Main.RH), 0, 0, null);
 		}
-		gA[1].drawImage(art.text("Total: " + df.format(sum) + "ms;"), 0, 10*(num+1), null);
-		gA[1].drawImage(art.text("FPS: " + df.format(1/(sum/1000d))), 85, 10*(num+1), null);
-		
-		gA[1].drawImage(art.text("TPS: " + Main.tps + "; FPS: " + Main.fps + "; Resolution: " + Main.RW + "x" + Main.RH), 0, 0, null);
-		gA[1].drawImage(art.text("Use WASD to move, the mouse to rotate and SHIFT to sprint", Color.CYAN), Main.RW / 2 - art.text("Use WASD to move, the mouse to rotate and SHIFT to sprint").getWidth() / 2, (int) (Main.RH - 20 + 7*Math.sin((float)Main.ticks / 15f)), null);
+		gA[1].drawImage(art.text("Move: WASD; Look: Mouse; Sprint: SHIFT; Map: Q; Debug: F1;", Color.CYAN), Main.RW / 2 - art.text("Move: WASD; Look: Mouse; Sprint: SHIFT; Map: Q; Debug: F1;").getWidth() / 2, Main.RH - 12, null);
 	}
     
     public Location getIntersectionLocation(Location ray, Location[] wall){

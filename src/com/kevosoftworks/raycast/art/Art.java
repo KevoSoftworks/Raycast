@@ -17,6 +17,7 @@ public class Art {
 	public static final int TEXTURE_WALL2 = 8;
 	public static final int TEXTURE_WALL3 = 9;
 	public static final int TEXTURE_GRASS = 10;
+	public static final int TEXTURE_ORIENTAL_WALL = 11;
 	
 	private Texture none;
 	private Texture wall;
@@ -29,6 +30,7 @@ public class Art {
 	private Texture wall2;
 	private Texture wall3;
 	private Texture grass;
+	private Texture orientalWall;
 	
 	private Font font;
 	
@@ -45,7 +47,7 @@ public class Art {
 		wallDGreen = new Texture("/textures/wall_dark_green.png");
 		wall2 = new Texture("/textures/wall2.png");
 		wall3 = new Texture("/textures/wall3.png");
-		grass = new Texture("/textures/grass.png");
+		orientalWall = new Texture("/textures/wall_oriental.png");
 		
 		font = new Font("/font.png");
 		skybox = new Skybox("/skybox.png");
@@ -71,8 +73,8 @@ public class Art {
 				return wall2;
 			case TEXTURE_WALL3:
 				return wall3;
-			case TEXTURE_GRASS:
-				return grass;
+			case TEXTURE_ORIENTAL_WALL:
+				return orientalWall;
 			default:
 				return none;
 		}

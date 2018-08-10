@@ -30,7 +30,7 @@ public class Mipmap{
 		this.image = new BufferedImage(this.width, this.height, BufferedImage.TYPE_4BYTE_ABGR);
 		
 		Graphics g = image.getGraphics();
-		if(INTERPOLATION)((Graphics2D)g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		if(INTERPOLATION)((Graphics2D)g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 		if(ANTIALIAS)((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.drawImage(img, 0, 0, this.width, this.height, null);
 		g.dispose();

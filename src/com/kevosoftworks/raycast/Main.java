@@ -76,7 +76,7 @@ public class Main extends Canvas implements Runnable{
 		
 		jframe.setVisible(true);
 		
-		world = new BufferedImage(RW, RH, BufferedImage.TYPE_INT_ARGB);
+		world = new BufferedImage(RW, RH, BufferedImage.TYPE_INT_RGB);
 		
 		jframe.createBufferStrategy(2);
 		bs = jframe.getBufferStrategy();
@@ -125,8 +125,8 @@ public class Main extends Canvas implements Runnable{
 		gA[0] = bs.getDrawGraphics();
 		gA[1] = world.getGraphics();
 		
-		((Graphics2D)gA[1]).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-		((Graphics2D)gA[0]).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		((Graphics2D)gA[1]).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+		((Graphics2D)gA[0]).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 		
 		gA[1].setColor(Color.black);
 		gA[1].fillRect(0, 0, WW, WH);
