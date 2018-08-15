@@ -62,11 +62,11 @@ public class Map {
 		w1.add(new SolidWall(new Location(-5f, 0f), new Location(-5f, -3f), Art.TEXTURE_WALL3, 2));
 		w1.add(new PortalWall(new Location(6f, 3f), new Location(0f, 5f), Art.TEXTURE_WALL3, 2, 1, 2));
 		
-		w2.add(new SolidWall(new Location(6f, 3f), new Location(20f, 10f), Art.TEXTURE_WALL2));
-		w2.add(new SolidWall(new Location(20f, 10f), new Location(16f, 13f), Art.TEXTURE_WALL2));
-		w2.add(new SolidWall(new Location(16f, 13f), new Location(6f, 13f), Art.TEXTURE_WALL2));
-		w2.add(new SolidWall(new Location(6f, 13f), new Location(0f, 5f), Art.TEXTURE_WALL2));
-		w2.add(new PortalWall(new Location(6f, 3f), new Location(0f, 5f), Art.TEXTURE_WALL2, 1, 1, 1));
+		w2.add(new SolidWall(new Location(6f, 3f), new Location(20f, 10f), Art.TEXTURE_WALL2,3));
+		w2.add(new SolidWall(new Location(20f, 10f), new Location(16f, 13f), Art.TEXTURE_WALL2,3));
+		w2.add(new SolidWall(new Location(16f, 13f), new Location(6f, 13f), Art.TEXTURE_WALL2,3));
+		w2.add(new SolidWall(new Location(6f, 13f), new Location(0f, 5f), Art.TEXTURE_WALL2,3));
+		w2.add(new PortalWall(new Location(6f, 3f), new Location(0f, 5f), Art.TEXTURE_WALL2, 3, 1, 1));
 		
 		w3.add(new PortalWall(new Location(-2.5f, -3.5f), new Location(-1.5f, -3.5f), Art.TEXTURE_WALL, 2, 2, 1));
 		w3.add(new SolidWall(new Location(-2.5f, -3.5f), new Location(-2.5f, -10f), Art.TEXTURE_ORIENTAL_WALL, 2));
@@ -93,14 +93,41 @@ public class Map {
 		w7.add(new SolidWall(new Location(-1.5f, -12f), new Location(5f, -12f), Art.TEXTURE_WALL_BLUE));
 		w7.add(new SolidWall(new Location(5f, -10f), new Location(5f, -12f), Art.TEXTURE_WALL_BLUE));
 		
+		ConvexRoom r1 = new ConvexRoom(1, w1);
+		r1.setFloorProperties(true, art.getTexture(Art.TEXTURE_WALL_GREEN));
+		r1.setCeilingProperties(true, art.getTexture(Art.TEXTURE_WALL_DARK_RED), 3f);
 		
-		rooms.add(new ConvexRoom(w1, 1, Art.TEXTURE_NONE, Art.TEXTURE_NONE));
-		rooms.add(new ConvexRoom(w2, 2, Art.TEXTURE_WALL_RED, Art.TEXTURE_WALL));
-		rooms.add(new ConvexRoom(w3, 3, Art.TEXTURE_GRASS, Art.TEXTURE_NONE));
-		rooms.add(new ConvexRoom(w4, 4, Art.TEXTURE_WALL, Art.TEXTURE_WALL_DARK_BLUE));
-		rooms.add(new ConvexRoom(w5, 5, Art.TEXTURE_WALL, Art.TEXTURE_WALL_DARK_BLUE));
-		rooms.add(new ConvexRoom(w6, 6, Art.TEXTURE_WALL, Art.TEXTURE_WALL_DARK_BLUE));
-		rooms.add(new ConvexRoom(w7, 7, Art.TEXTURE_WALL, Art.TEXTURE_WALL_DARK_BLUE));
+		ConvexRoom r2 = new ConvexRoom(2, w2);
+		r2.setFloorProperties(true, art.getTexture(Art.TEXTURE_WALL));
+		r2.setCeilingProperties(false);
+		
+		ConvexRoom r3 = new ConvexRoom(3, w3);
+		r3.setFloorProperties(true, art.getTexture(Art.TEXTURE_WALL3));
+		r3.setCeilingProperties(true, art.getTexture(Art.TEXTURE_WALL3));
+		
+		ConvexRoom r4 = new ConvexRoom(4, w4);
+		r4.setFloorProperties(true, art.getTexture(Art.TEXTURE_WALL_GREEN));
+		r4.setCeilingProperties(false);
+		
+		ConvexRoom r5 = new ConvexRoom(5, w5);
+		r5.setFloorProperties(true, art.getTexture(Art.TEXTURE_WALL_GREEN));
+		r5.setCeilingProperties(false);
+		
+		ConvexRoom r6 = new ConvexRoom(6, w6);
+		r6.setFloorProperties(true, art.getTexture(Art.TEXTURE_WALL_GREEN));
+		r6.setCeilingProperties(false);
+		
+		ConvexRoom r7 = new ConvexRoom(7, w7);
+		r7.setFloorProperties(true, art.getTexture(Art.TEXTURE_WALL_GREEN));
+		r7.setCeilingProperties(false);
+		
+		rooms.add(r1);
+		rooms.add(r2);
+		rooms.add(r3);
+		rooms.add(r4);
+		rooms.add(r5);
+		rooms.add(r6);
+		rooms.add(r7);
 	}
 	
 	public void tick(InputHandler input){
@@ -257,7 +284,7 @@ public class Map {
     
     public ConvexRoom getRoom(int uuid){
     	for(ConvexRoom cr:rooms){
-    		if(cr.getUUID() == uuid) return cr;
+    		if(cr.getId() == uuid) return cr;
     	}
     	return null;
     }

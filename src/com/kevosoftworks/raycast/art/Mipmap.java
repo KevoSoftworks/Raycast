@@ -10,7 +10,7 @@ import java.awt.image.DataBufferByte;
 public class Mipmap{
 	
 	byte[] raw;
-	public int[][] pA;
+	public int[][] pA = null;
 	boolean hasAlpha;
 	public int width;
 	public int height;
@@ -52,6 +52,7 @@ public class Mipmap{
 	}
 	
 	public int[][] getPixelArray(){
+		if(this.pA != null) return this.pA;
 		int[][] ret = new int[height][width];
 		int row = 0, col = 0;
 		for(int i = 0; i < this.raw.length; i += this.hasAlpha ? 4 : 3){

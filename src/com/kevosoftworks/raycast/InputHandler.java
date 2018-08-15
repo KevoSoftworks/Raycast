@@ -116,7 +116,6 @@ public class InputHandler implements KeyListener, FocusListener, MouseListener, 
 			break;
 		case KeyEvent.VK_F1:
 			renderDebugText = !renderDebugText;
-			System.out.println("lala");
 			break;
 		}
 	}

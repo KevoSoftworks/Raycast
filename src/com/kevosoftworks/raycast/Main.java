@@ -21,7 +21,7 @@ public class Main extends Canvas implements Runnable{
 	public static final int TICKRATE = 64;
 	
 	private static final String TITLE = "Raycast Engine";
-	public static final boolean FULLSCREEN = false;
+	public static final boolean FULLSCREEN = true;
 	public static final boolean FULLRESOLUTION = false;
 	public static int WH = 1080;
 	public static int WW = 1920;

@@ -36,11 +36,7 @@ public class Texture {
 	}
 	
 	public int[] getColumn(float walldist, float dist){
-		int threshPass = (int) Math.floor(dist/THRESHOLD_DIST);
-		if(threshPass > MAX_MIPMAP) threshPass = MAX_MIPMAP;
-		if(threshPass < 1) threshPass = 1;
-		
-		Mipmap m = mm.get(threshPass-1);
+		Mipmap m = mm.get(this.getMipmapIndex(dist));
 		int[][] pA = m.getPixelArray();
 		int col = (int)Math.floor(walldist * m.height % (m.width));
 		int[] ret = new int[m.height];
@@ -49,6 +45,13 @@ public class Texture {
 			ret[i] = pA[i][col];
 		}
 		return ret;
+	}
+	
+	public int getMipmapIndex(float dist){
+		int threshPass = (int) Math.floor(dist/THRESHOLD_DIST);
+		if(threshPass > MAX_MIPMAP) threshPass = MAX_MIPMAP;
+		if(threshPass < 1) threshPass = 1;
+		return threshPass - 1;
 	}
 	
 	public BufferedImage getBufferedImage(){
