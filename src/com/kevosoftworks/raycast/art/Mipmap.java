@@ -10,7 +10,7 @@ import java.awt.image.DataBufferByte;
 public class Mipmap{
 	
 	byte[] raw;
-	public int[][] pA;
+	public int[][] pA = null;
 	boolean hasAlpha;
 	public int width;
 	public int height;
@@ -30,7 +30,7 @@ public class Mipmap{
 		this.image = new BufferedImage(this.width, this.height, BufferedImage.TYPE_4BYTE_ABGR);
 		
 		Graphics g = image.getGraphics();
-		if(INTERPOLATION)((Graphics2D)g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		if(INTERPOLATION)((Graphics2D)g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 		if(ANTIALIAS)((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.drawImage(img, 0, 0, this.width, this.height, null);
 		g.dispose();
@@ -52,6 +52,7 @@ public class Mipmap{
 	}
 	
 	public int[][] getPixelArray(){
+		if(this.pA != null) return this.pA;
 		int[][] ret = new int[height][width];
 		int row = 0, col = 0;
 		for(int i = 0; i < this.raw.length; i += this.hasAlpha ? 4 : 3){

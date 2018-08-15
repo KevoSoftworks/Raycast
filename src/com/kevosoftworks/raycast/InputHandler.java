@@ -24,6 +24,7 @@ public class InputHandler implements KeyListener, FocusListener, MouseListener, 
 	boolean reset = false;
 	boolean renderFloor = false;
 	boolean renderMap = false;
+	boolean renderDebugText = false;
 	
 	boolean inFocus = false;
 	
@@ -112,6 +113,9 @@ public class InputHandler implements KeyListener, FocusListener, MouseListener, 
 			break;
 		case KeyEvent.VK_Q:
 			renderMap = !renderMap;
+			break;
+		case KeyEvent.VK_F1:
+			renderDebugText = !renderDebugText;
 			break;
 		}
 	}

@@ -13,7 +13,7 @@ public class Camera {
 	Location l;
 	float UPH = 8f;
 	
-	float walkSpeed = 0.04f;
+	float walkSpeed = 0.05f;
 	float rotateSpeed = 0.025f;
 	
 	Vector2 direction;
@@ -23,17 +23,27 @@ public class Camera {
 	int mouseY = 0;
 	float mouseSensitivity = 0.03f;
 	
+	float fov = 80f;
+	
 	private Matrix2 perpRotMat = this.getRotationMatrix((float)(Math.PI / 2d));
 	
 	public Camera(Map m, Location l){
 		this.m = m;
 		this.l = l;
-		direction = new Vector2(0f,-0.001f);
-		plane = new Vector2(0.001f,0f);
+		direction = new Vector2(0f,1f);
+		plane = new Vector2(-1f, 0f);
+		this.setFOV(this.fov);
 	}
 	
 	public Location getLocation(){
 		return this.l;
+	}
+	
+	public void setFOV(float fov){
+		if(fov > 90f) fov = 90f;
+		this.plane.normalise();
+		this.plane.multiply((float)(Math.tan(Math.toRadians(0.5f * fov))));
+		this.fov = fov;
 	}
 	
 	public void tick(InputHandler i){
