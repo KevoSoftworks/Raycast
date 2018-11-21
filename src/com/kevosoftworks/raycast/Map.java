@@ -10,6 +10,10 @@ import java.util.HashMap;
 
 import com.kevosoftworks.raycast.art.Art;
 import com.kevosoftworks.raycast.matrix.Matrix2;
+import com.kevosoftworks.raycast.savable.SavableConvexRoom;
+import com.kevosoftworks.raycast.savable.SavableMap;
+import com.kevosoftworks.raycast.savable.SavableWall;
+import com.kevosoftworks.raycast.savable.SaveFile;
 import com.kevosoftworks.raycast.vector.Vector2;
 import com.kevosoftworks.raycast.wall.PortalWall;
 import com.kevosoftworks.raycast.wall.SolidWall;
@@ -20,7 +24,8 @@ public class Map {
 	Camera camera;
 	Art art;
 	ArrayList<ConvexRoom> rooms;
-	int curuuid = 1;
+	int curuuid = 0;
+	SaveFile sf;
 	
 	boolean isTopDown = false;
 	boolean renderMap = false;
@@ -33,101 +38,46 @@ public class Map {
 	HashMap<Integer, Long> timeFloor;
 	HashMap<Integer, Long> timeCeil;
 	
-	double[] zIndex;
-	int[] zBot;
-	int[] zTop;
-	Location[] zLocation;
-	
 	public Map(){
+		sf = new SaveFile("maps/");
 		art = new Art();
 		camera = new Camera(this, new Location(0f,0f));
 		rooms = new ArrayList<ConvexRoom>();
 		
-		ArrayList<Wall>w1 = new ArrayList<Wall>();
-		ArrayList<Wall>w2 = new ArrayList<Wall>();
-		ArrayList<Wall>w3 = new ArrayList<Wall>();
-		ArrayList<Wall>w4 = new ArrayList<Wall>();
-		ArrayList<Wall>w5 = new ArrayList<Wall>();
-		ArrayList<Wall>w6 = new ArrayList<Wall>();
-		ArrayList<Wall>w7 = new ArrayList<Wall>();
-
-		w1.add(new SolidWall(new Location(-5f, -3f), new Location(-2.5f, -3.5f), Art.TEXTURE_ORIENTAL_WALL,2));
-		w1.add(new SolidWall(new Location(-1.5f, -3.5f), new Location(2f, -5f), Art.TEXTURE_ORIENTAL_WALL,2));
-		w1.add(new PortalWall(new Location(-2.5f, -3.5f), new Location(-1.5f, -3.5f), Art.TEXTURE_WALL, 2, 2, 3));
-		w1.add(new SolidWall(new Location(2f, -5f), new Location(4f, -4f), Art.TEXTURE_WALL, 2));
-		w1.add(new SolidWall(new Location(4f, -4f), new Location(6f, 3f), Art.TEXTURE_WALL, 2));
-		w1.add(new SolidWall(new Location(0f, 5f), new Location(-5f, 5f), Art.TEXTURE_NONE, 2));
-		w1.add(new SolidWall(new Location(-5f, 5f), new Location(-5f, 1f), Art.TEXTURE_WALL3, 2));
-		w1.add(new SolidWall(new Location(-5f, 1f), new Location(-5f, 0f), Art.TEXTURE_NONE, 2));
-		w1.add(new SolidWall(new Location(-5f, 0f), new Location(-5f, -3f), Art.TEXTURE_WALL3, 2));
-		w1.add(new PortalWall(new Location(6f, 3f), new Location(0f, 5f), Art.TEXTURE_WALL3, 2, 1, 2));
-		
-		w2.add(new SolidWall(new Location(6f, 3f), new Location(20f, 10f), Art.TEXTURE_WALL2,3));
-		w2.add(new SolidWall(new Location(20f, 10f), new Location(16f, 13f), Art.TEXTURE_WALL2,3));
-		w2.add(new SolidWall(new Location(16f, 13f), new Location(6f, 13f), Art.TEXTURE_WALL2,3));
-		w2.add(new SolidWall(new Location(6f, 13f), new Location(0f, 5f), Art.TEXTURE_WALL2,3));
-		w2.add(new PortalWall(new Location(6f, 3f), new Location(0f, 5f), Art.TEXTURE_WALL2, 3, 1, 1));
-		
-		w3.add(new PortalWall(new Location(-2.5f, -3.5f), new Location(-1.5f, -3.5f), Art.TEXTURE_WALL, 2, 2, 1));
-		w3.add(new SolidWall(new Location(-2.5f, -3.5f), new Location(-2.5f, -10f), Art.TEXTURE_ORIENTAL_WALL, 2));
-		w3.add(new SolidWall(new Location(-1.5f, -3.5f), new Location(-1.5f, -10f), Art.TEXTURE_ORIENTAL_WALL, 2));
-		w3.add(new PortalWall(new Location(-2.5f, -10f), new Location(-1.5f, -10f), Art.TEXTURE_WALL, 2, 1, 4));
-		
-		w4.add(new PortalWall(new Location(-2.5f, -10f), new Location(-1.5f, -10f), Art.TEXTURE_WALL, 1, 1, 3));
-		w4.add(new PortalWall(new Location(-2.5f, -12f), new Location(-1.5f, -12f), Art.TEXTURE_WALL3, 1, 1, 6));
-		w4.add(new PortalWall(new Location(-2.5f, -10f), new Location(-2.5f, -12f), Art.TEXTURE_WALL3, 1, 1, 5));
-		w4.add(new PortalWall(new Location(-1.5f, -10f), new Location(-1.5f, -12f), Art.TEXTURE_WALL, 1, 1, 7));
-		
-		w5.add(new PortalWall(new Location(-2.5f, -10f), new Location(-2.5f, -12f), Art.TEXTURE_WALL, 1, 1, 4));
-		w5.add(new SolidWall(new Location(-2.5f, -10f), new Location(-5f, -10f), Art.TEXTURE_ORIENTAL_WALL));
-		w5.add(new SolidWall(new Location(-2.5f, -12f), new Location(-5f, -12f), Art.TEXTURE_ORIENTAL_WALL));
-		w5.add(new SolidWall(new Location(-5f, -10f), new Location(-5f, -12f), Art.TEXTURE_ORIENTAL_WALL));
-		
-		w6.add(new PortalWall(new Location(-2.5f, -12f), new Location(-1.5f, -12f), Art.TEXTURE_WALL, 1, 1, 4));
-		w6.add(new SolidWall(new Location(-2.5f, -12f), new Location(-2.5f, -17f), Art.TEXTURE_WALL_GREEN));
-		w6.add(new SolidWall(new Location(-1.5f, -12f), new Location(0f, -16f), Art.TEXTURE_WALL_GREEN));
-		w6.add(new SolidWall(new Location(-2.5f, -17f), new Location(0f, -16f), Art.TEXTURE_WALL_GREEN));
-		
-		w7.add(new PortalWall(new Location(-1.5f, -10f), new Location(-1.5f, -12f), Art.TEXTURE_WALL, 1, 1, 4));
-		w7.add(new SolidWall(new Location(-1.5f, -10f), new Location(5f, -10f), Art.TEXTURE_WALL_BLUE));
-		w7.add(new SolidWall(new Location(-1.5f, -12f), new Location(5f, -12f), Art.TEXTURE_WALL_BLUE));
-		w7.add(new SolidWall(new Location(5f, -10f), new Location(5f, -12f), Art.TEXTURE_WALL_BLUE));
-		
-		ConvexRoom r1 = new ConvexRoom(1, w1);
-		r1.setFloorProperties(true, art.getTexture(Art.TEXTURE_WALL_GREEN));
-		r1.setCeilingProperties(true, art.getTexture(Art.TEXTURE_WALL_DARK_RED), 3f);
-		
-		ConvexRoom r2 = new ConvexRoom(2, w2);
-		r2.setFloorProperties(true, art.getTexture(Art.TEXTURE_WALL));
-		r2.setCeilingProperties(false);
-		
-		ConvexRoom r3 = new ConvexRoom(3, w3);
-		r3.setFloorProperties(true, art.getTexture(Art.TEXTURE_WALL3));
-		r3.setCeilingProperties(true, art.getTexture(Art.TEXTURE_WALL3));
-		
-		ConvexRoom r4 = new ConvexRoom(4, w4);
-		r4.setFloorProperties(true, art.getTexture(Art.TEXTURE_WALL_GREEN));
-		r4.setCeilingProperties(false);
-		
-		ConvexRoom r5 = new ConvexRoom(5, w5);
-		r5.setFloorProperties(true, art.getTexture(Art.TEXTURE_WALL_GREEN));
-		r5.setCeilingProperties(false);
-		
-		ConvexRoom r6 = new ConvexRoom(6, w6);
-		r6.setFloorProperties(true, art.getTexture(Art.TEXTURE_WALL_GREEN));
-		r6.setCeilingProperties(false);
-		
-		ConvexRoom r7 = new ConvexRoom(7, w7);
-		r7.setFloorProperties(true, art.getTexture(Art.TEXTURE_WALL_GREEN));
-		r7.setCeilingProperties(false);
-		
-		rooms.add(r1);
-		rooms.add(r2);
-		rooms.add(r3);
-		rooms.add(r4);
-		rooms.add(r5);
-		rooms.add(r6);
-		rooms.add(r7);
+		System.out.println("Loading map!");
+		SavableMap m = sf.loadMap();
+		for(SavableConvexRoom scr:m.getRooms()){
+			ArrayList<Wall> w = new ArrayList<Wall>();
+			for(SavableWall sw:scr.getWalls()){
+				if(sw.getWallType() == Wall.WALLTYPE_PORTAL){
+					w.add(new PortalWall(
+								sw.getId(),
+								sw.getLocation1(),
+								sw.getLocation2(),
+								sw.getNormal(),
+								art.getTexture(sw.getTextureNumber()),
+								sw.getPortalStart(),
+								sw.getPortalStop(),
+								sw.getHeight(),
+								sw.getPortalRoomId()
+							));
+				} else {
+					w.add(new SolidWall(
+								sw.getId(),
+								sw.getLocation1(),
+								sw.getLocation2(),
+								sw.getNormal(),
+								art.getTexture(sw.getTextureNumber()),
+								sw.getHeight()
+							));
+				}
+			}
+			ConvexRoom r = new ConvexRoom(scr.getId(), w);
+			r.setCeilingProperties(scr.hasCeiling(), art.getTexture(scr.getCeilingTextureNumber()), scr.getCeilingTextureScale());
+			r.setFloorProperties(scr.hasFloor(), art.getTexture(scr.getFloorTextureNumber()), scr.getFloorTextureScale());
+			r.setZHeight(scr.getZHeight());
+			rooms.add(r);
+		}
 	}
 	
 	public void tick(InputHandler input){
@@ -140,19 +90,12 @@ public class Map {
 		}
 		renderMap = input.renderMap;
 		renderDebugText = input.renderDebugText;
+		
+		ConvexRoom r = this.getRoom(15);
+		r.setZHeight((float)Math.sin(Main.ticks / 128f)+0.8f);
 	}
 	
-	public void render(Graphics[] gA){
-		zIndex = new double[Main.RW];
-		zLocation = new Location[Main.RW];
-		zBot = new int[Main.RW];
-		zTop = new int[Main.RW];
-		
-		for(int i=0; i<zBot.length; i++){
-			zBot[i] = -1;
-			zTop[i] = -1;
-		}
-		
+	public void render(Graphics[] gA, BufferedImage[] bI){		
 		time = new HashMap<Integer, Long>();
 		timeWall = new HashMap<Integer, Long>();
 		timeFloor = new HashMap<Integer, Long>();
@@ -165,13 +108,14 @@ public class Map {
 		Point2D pCoord1 = camera.getPoint2D(pLoc1);
 		Point2D pCoord2 = camera.getPoint2D(pLoc2);
 		if(!isTopDown){
-			this.getCurrentRoom().render(this, gA, this.curuuid);
+			this.getCurrentRoom().render(this, gA, bI, this.curuuid);
 		}
 		
 		if(renderMap){
 			for(ConvexRoom cr:rooms){
 				Wall[] walls = cr.getWalls();
 				for(Wall w:walls){
+					if(w instanceof PortalWall && ((PortalWall) w).getPortalStart() < 0.5f) continue;
 					Location[] l = w.getLocations();
 					Point2D[] p = camera.getPoints2D(l);
 					//We assume the screen to have 16 units in the y coordinate
@@ -287,6 +231,10 @@ public class Map {
     		if(cr.getId() == uuid) return cr;
     	}
     	return null;
+    }
+    
+    public ConvexRoom[] getRooms(){
+    	return this.rooms.toArray(new ConvexRoom[1]);
     }
 
 }

@@ -2,6 +2,10 @@ package com.kevosoftworks.raycast.vector;
 
 public class Vector2 extends Vector{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private float x;
 	private float y;
 	

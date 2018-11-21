@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.util.ArrayList;
 
+import com.kevosoftworks.raycast.art.Art;
 import com.kevosoftworks.raycast.art.Mipmap;
 import com.kevosoftworks.raycast.art.Texture;
 import com.kevosoftworks.raycast.vector.Vector2;
@@ -19,6 +20,7 @@ public class ConvexRoom{
 	//Room properties
 	private int id = -1;
 	private ArrayList<Wall> walls;
+	private float zHeight = 0f;
 	
 	//Render settings
 	private boolean renderWalls = true;
@@ -28,7 +30,7 @@ public class ConvexRoom{
 	private boolean isCulling = true;
 	
 	//Light properties
-	private float lightDistanceDropoff = 16f;
+	private float lightDistanceDropoff = 12f;
 	private float lightMaximumBrightness = 0.6f;
 	
 	//Floor properties
@@ -47,6 +49,12 @@ public class ConvexRoom{
 		this.walls = walls;
 	}
 	
+	public ConvexRoom(int id, ArrayList<Wall> walls, float zHeight){
+		this.id = id;
+		this.walls = walls;
+		this.zHeight = zHeight;
+	}
+	
 	public void setFloorProperties(boolean hasFloor){
 		this.setFloorProperties(hasFloor, null, 1f);
 	}
@@ -59,6 +67,7 @@ public class ConvexRoom{
 		this.hasFloor = hasFloor;
 		this.floorTexture = floorTexture;
 		this.floorTextureScale = textureScale;
+		if(textureScale < 0.1f) this.floorTextureScale = 0.1f;
 	}
 	
 	public void setCeilingProperties(boolean hasCeil){
@@ -73,6 +82,35 @@ public class ConvexRoom{
 		this.hasCeil = hasCeil;
 		this.ceilTexture = ceilTexture;
 		this.ceilTextureScale = textureScale;
+		if(textureScale < 0.1f) this.ceilTextureScale = 0.1f;
+	}
+	
+	public void setZHeight(float zh){
+		this.zHeight = zh;
+	}
+	
+	public boolean hasFloor(){
+		return this.hasFloor;
+	}
+	
+	public Texture getFloorTexture(){
+		return this.floorTexture;
+	}
+	
+	public float getFloorTextureScale(){
+		return this.floorTextureScale;
+	}
+	
+	public boolean hasCeiling(){
+		return this.hasCeil;
+	}
+	
+	public Texture getCeilingTexture(){
+		return this.ceilTexture;
+	}
+	
+	public float getCeilingTextureScale(){
+		return this.ceilTextureScale;
 	}
 	
 	public int getId(){
@@ -83,20 +121,46 @@ public class ConvexRoom{
 		return this.walls.toArray(new Wall[walls.size()]);
 	}
 	
-	public void addWall(Wall w){
-		this.walls.add(w);
+	public Wall getWall(int id){
+		for(Wall w:walls){
+			if(w.getId()==id) return w;
+		}
+		return null;
 	}
 	
-	public void render(Map m, Graphics[] gA, int originroom){
-		gA[1].drawImage(m.art.getSkybox().getBufferedImage(), 0, 0, Main.RW, Main.RH, null);
+	public int addWall(Wall w){
+		this.walls.add(w);
+		return w.getId();
+	}
+	
+	public int getNewWallId(){
+		if(this.walls.size() == 0) return 0;
+		return this.walls.get(this.walls.size() - 1).getId() + 1;
+	}
+	
+	public boolean removeWall(int id){
+		for(Wall w:walls){
+			if(w.getId() == id) return walls.remove(w);
+		}
+		return false;
+	}
+	
+	public float getZHeight(){
+		return this.zHeight;
+	}
+	
+	public void render(Map m, Graphics[] gA, BufferedImage[] bI, int originroom){
+		//gA[1].drawImage(m.art.getSkybox().getBufferedImage(), 0, 0, Main.RW, Main.RH, null);
 		//Cast Rays
 		for(int i = 0; i < Main.RW; i++){
-			this.renderRay(m, gA, i, originroom, Main.RH, 0);
+			this.renderRay(m, gA, bI, i, originroom, originroom, Main.RH, 0, zHeight, 0, Main.RH);
 		}
 	}
 	
-	public void renderRay(Map m, Graphics[] gA, int i, int originroom, int floorRenderPxStop, int ceilRenderPxStart){
-		renderWalls = true;
+	public void renderRay(Map m, Graphics[] gA, BufferedImage[] bI, int i, int playerroom, int originroom, int floorRenderPxStop, int ceilRenderPxStart, float roomZHeight, int yMin, int yMax){
+		if(yMin < 0) yMin = 0;
+		if(yMax > Main.RH) yMax = Main.RH;
+		float deltaZ = this.zHeight - roomZHeight; //Positive: room shifts up; negative: room shifts down w.r.t. originRoom
 		if(!m.time.containsKey(id)){
 			m.time.put(id, 0l);
 			m.timeWall.put(id, 0l);
@@ -107,8 +171,8 @@ public class ConvexRoom{
 		long curTime = System.nanoTime();
 		long otherTime = 0;
 		
-		Location pLoc1 = new Location(m.camera.getLocation().getX() + m.camera.direction.getX() - m.camera.plane.getX(), m.camera.getLocation().getY() + m.camera.direction.getY() - m.camera.plane.getY());
-		Location pLoc2 = new Location(m.camera.getLocation().getX() + m.camera.direction.getX() + m.camera.plane.getX(), m.camera.getLocation().getY() + m.camera.direction.getY() + m.camera.plane.getY());
+		Vector2 fovLeft = new Vector2(m.camera.direction.getX() - m.camera.plane.getX(), m.camera.direction.getY() - m.camera.plane.getY());
+		Vector2 fovRight = new Vector2(m.camera.direction.getX() + m.camera.plane.getX(), m.camera.direction.getY() + m.camera.plane.getY());
 		//Remap x-coordinate to [-1, 1] interval
 		float cameraX = (float) (2f * ((float)i/Main.RW) - 1f);
 		Vector2 rayDir = new Vector2(
@@ -118,6 +182,7 @@ public class ConvexRoom{
 		float arcAngle = rayDir.normalised().dot(m.camera.direction);
 		Location rLoc = new Location(m.camera.getLocation().getX() + rayDir.getX(), m.camera.getLocation().getY() + rayDir.getY());
 		for(Wall w:walls){
+			if(w.getNormal().dot(fovLeft) >= 0 && w.getNormal().dot(fovRight) >= 0) continue;
 			long curTimeWall = System.nanoTime();
 			Location[] l = w.getLocations();
 			//We still want to do some culling here.
@@ -133,72 +198,74 @@ public class ConvexRoom{
 				if(sf < 0) sf = 0;
 				
 				float portalH = 0;
+				float portalStart = 0f;
+				float portalStop = 0f;
 				
 				float lH = (1 / dist);
 				if(lH > 32) lH = 32;
-				float wallTop = 0.5f*lH + ((w.getHeight() - 1f) * lH);
-				
-				int floorRenderPxStart = Math.round(0.5f*Main.RH + (-wallTop/lH + (w.getHeight()))*Main.RH*lH);
-				int ceilRenderPxStop = Math.round(Main.RH * (0.5f - wallTop));
+				float wallTop = 0.5f*lH + ((w.getHeight() - 1f + deltaZ) * lH);
 				
 				long ot2 = 0;
 				if(w instanceof PortalWall){
 					PortalWall pw = (PortalWall) w;
-					int ruid = pw.getRoomUuid();
 					portalH = ((PortalWall) w).getPortalHeight();
-					long ot = System.nanoTime();
-					if(ruid != originroom && (sf > 0 || !isCulling)) m.getRoom(((PortalWall)w).getRoomUuid()).renderRay(m, gA, i, this.id, floorRenderPxStart, ceilRenderPxStop);
-					ot2 = System.nanoTime() - ot;
-					otherTime += ot2;
-					
-				} else {
-					m.zIndex[i] = dist;
-					m.zLocation[i] = intersect;
+					portalStart = pw.getPortalStart();
+					portalStop = pw.getPortalStop();
 				}
 				
 				int renderTopY = Math.round(Main.RH * (0.5f - wallTop));
-				int renderBottomY = Math.round(0.5f*Main.RH + (-wallTop/lH + (w.getHeight() - portalH))*Main.RH*lH);
+				int renderBottomY = Math.round(0.5f*Main.RH + (-wallTop/lH + (w.getHeight()))*Main.RH*lH);
 				int renderDeltaY = renderBottomY - renderTopY;
 				//Consensus: If renderDeltaY = Main.RH -> 1 wall texture height (e.g. 64px) should fill the screen
+				int renderPortalStartY = Math.round(0.5f*Main.RH + (-wallTop/lH + (w.getHeight() - portalStart))*Main.RH*lH);
+				int renderPortalStopY = Math.round(0.5f*Main.RH + (-wallTop/lH + (w.getHeight() - portalStop))*Main.RH*lH);
+				
+				if(renderPortalStartY > yMax) renderPortalStartY = yMax;
+				if(renderPortalStopY < yMin) renderPortalStopY = yMin;
+				
+				int floorRenderPxStart = renderBottomY;
+				int ceilRenderPxStop = renderTopY;
+				
+				if(w instanceof PortalWall){
+					PortalWall pw = (PortalWall) w;
+					int ruid = pw.getRoomId();
+					
+					if(ruid == originroom) continue;
+					
+					long ot = System.nanoTime();
+					if(ruid != originroom && (sf > 0 || !isCulling)) m.getRoom(((PortalWall)w).getRoomId()).renderRay(m, gA, bI, i, playerroom, this.id, floorRenderPxStart, ceilRenderPxStop, roomZHeight, renderPortalStopY, renderPortalStartY);
+					ot2 = System.nanoTime() - ot;
+					otherTime += ot2;
+				}
 				
 				if(portalH < w.getHeight()){
-					Texture t = m.art.getTexture(w.getTextureNumber());
-					int[] texture = t.getColumn(l[0].distance(intersect), dist);
+					int[] texture = w.getTexture().getColumn(l[0].distance(intersect), dist);
 					
-					int topPxClip = (renderTopY < 0) ? -renderTopY : 0;					
+					int topPxClip = -renderTopY;
+					
 					// Screen / texture
-					float ffac = (float)(renderDeltaY) / (float)(texture.length * (w.getHeight() - portalH));
-					
-					int imageHeight = (topPxClip > 0) ? renderBottomY : renderDeltaY;
-					if(imageHeight < 1) continue;
-					
-					BufferedImage bi = new BufferedImage(1, (imageHeight < Main.RH) ? imageHeight : Main.RH, BufferedImage.TYPE_INT_ARGB);
-					for(int y = 0; y < bi.getHeight(); y++){
-						bi.setRGB(0, y, texture[((int)(((float)y+topPxClip) / ffac)) % texture.length]);
+					float ffac = (float)(renderDeltaY) / (float)(texture.length * (w.getHeight()));
+								
+					for(int y = yMin; y < yMax; ++y){
+						if(!((sf > 0 || !isCulling) && renderWalls)) break;
+						if(portalH > 0 && (y < renderPortalStartY && y >= renderPortalStopY)) continue;
+						if(y < renderTopY || y >= renderBottomY) continue;
+						bI[1].setRGB(i, y, darkenColor(texture[((int)Math.abs((float)(y+topPxClip) / ffac)) % texture.length], sf));
 					}
-					
-					RescaleOp ro = new RescaleOp(
-								new float[]{sf, sf, sf, 1f},
-								new float[]{0f, 0f, 0f, 0f},
-								null);
-					renderTopY = renderTopY > 0 ? renderTopY : 0;
-					renderBottomY = renderBottomY < Main.RH ? renderBottomY : Main.RH;
-					if((sf > 0 || !isCulling) && renderWalls)gA[1].drawImage(ro.filter(bi, null), i, renderTopY, i+1, renderBottomY,0,0,1,bi.getHeight(), null);
 				}
 				
 				m.timeWall.put(id, m.timeWall.get(id) + System.nanoTime() - curTimeWall - ot2);
-				
-				if(hasFloor){
+
+				if(hasFloor && floorRenderPxStart < yMax){
 					long floorTime = System.nanoTime();
-					if(floorRenderPxStart > Main.RH) continue;
-					if(floorRenderPxStop > Main.RH) floorRenderPxStop = Main.RH;
+					if(floorRenderPxStop > yMax) floorRenderPxStop = yMax;
+					if(floorRenderPxStart < yMin) floorRenderPxStart = yMin;
 					if(floorRenderPxStop - floorRenderPxStart > 0){
-						BufferedImage biF = new BufferedImage(1, floorRenderPxStop - floorRenderPxStart, BufferedImage.TYPE_INT_ARGB);
 						for(int yPx = floorRenderPxStart; yPx < floorRenderPxStop; ++yPx){
-							float fY = (float) Main.RH / (2f * (float)yPx - (float)Main.RH);
+							float fY = (float) (1f - 2f*deltaZ)*Main.RH / (2f * (float)yPx - (float)Main.RH);
 							float refY = fY / dist;
 							
-							Mipmap tex = floorTexture.getMipmap(floorTexture.getMipmapIndex(0.8f*fY));
+							Mipmap tex = floorTexture.getMipmap(floorTexture.getMipmapIndex(fY));
 							int[][] texPixelArray = tex.getPixelArray();
 							
 							float curX = (refY) * intersect.getX() + (1f-refY) * m.camera.getLocation().getX();
@@ -208,28 +275,25 @@ public class ConvexRoom{
 							int texY = (int)Math.abs((curY * (float)tex.height / floorTextureScale) % tex.height);
 							
 							float sf2 = (refY) * sf + (1f-refY) * lightMaximumBrightness; 
-							if(sf2 < 0) sf2 = 0;
+							if(sf2 <= 0) continue;
 							if(sf2 > lightMaximumBrightness || !renderLight) sf2 = lightMaximumBrightness;
 							
-							biF.setRGB(0, yPx - floorRenderPxStart, darkenColor(texPixelArray[texX][texY], sf2));
+							bI[1].setRGB(i, yPx, darkenColor(texPixelArray[texX][texY], sf2));
 						}
-						gA[1].drawImage(biF, i, floorRenderPxStart, i+1, floorRenderPxStop, 0, 0, 1, biF.getHeight(), null);
 					}
 					m.timeFloor.put(id, m.timeFloor.get(id) + System.nanoTime() - floorTime);
 				}
 				
-				if(hasCeil){
+				if(hasCeil && ceilRenderPxStop > yMin){
 					long ceilTime = System.nanoTime();
-					if(ceilRenderPxStop < 0) continue;
-					if(ceilRenderPxStart < 0) ceilRenderPxStart = 0;
+					if(ceilRenderPxStart < yMin) ceilRenderPxStart = yMin;
+					if(ceilRenderPxStop >= yMax) ceilRenderPxStop = yMax;
 					if(ceilRenderPxStop - ceilRenderPxStart > 0){
-						int pxPerWallSeg = Math.round(renderDeltaY / w.getHeight());
-						BufferedImage biF = new BufferedImage(1, ceilRenderPxStop - ceilRenderPxStart, BufferedImage.TYPE_INT_ARGB);
 						for(int yPx = ceilRenderPxStart; yPx < ceilRenderPxStop; ++yPx){
-							float fY = (float) -(1f + 2f*(w.getHeight()-1f))*Main.RH / (2f * (float)yPx - (float)Main.RH);
+							float fY = (float) -(1f + 2f*(w.getHeight()-1f+deltaZ))*Main.RH / (2f * (float)yPx - (float)Main.RH);
 							float refY = fY / dist;
 							
-							Mipmap tex = ceilTexture.getMipmap(ceilTexture.getMipmapIndex(0.8f*fY));
+							Mipmap tex = ceilTexture.getMipmap(ceilTexture.getMipmapIndex(fY));
 							int[][] texPixelArray = tex.getPixelArray();
 							
 							float curX = (refY) * intersect.getX() + (1f-refY) * m.camera.getLocation().getX();
@@ -239,12 +303,11 @@ public class ConvexRoom{
 							int texY = (int)Math.abs((curY * (float)tex.height / ceilTextureScale) % tex.height);
 							
 							float sf2 = (refY) * sf + (1f-refY) * lightMaximumBrightness; 
-							if(sf2 < 0) sf2 = 0;
+							if(sf2 <= 0) continue;
 							if(sf2 > lightMaximumBrightness || !renderLight) sf2 = lightMaximumBrightness;
 							
-							biF.setRGB(0, yPx - ceilRenderPxStart, darkenColor(texPixelArray[texX][texY], sf2));
+							bI[1].setRGB(i, yPx, darkenColor(texPixelArray[texX][texY], sf2));
 						}
-						gA[1].drawImage(biF, i, ceilRenderPxStart, i+1, ceilRenderPxStop, 0, 0, 1, biF.getHeight(), null);
 					}
 					m.timeCeil.put(id, m.timeCeil.get(id) + System.nanoTime() - ceilTime);
 				}
@@ -264,13 +327,5 @@ public class ConvexRoom{
 		int b = (int)((c & 0xFF) * ra);
 		
 		return (a << 24) | (r << 16) | (g << 8) | b;
-	}
-	
-	public boolean hasFloor(){
-		return this.hasFloor;
-	}
-	
-	public boolean hasCeiling(){
-		return this.hasCeil;
 	}
 }

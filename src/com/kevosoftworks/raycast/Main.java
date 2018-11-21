@@ -25,8 +25,8 @@ public class Main extends Canvas implements Runnable{
 	public static final boolean FULLRESOLUTION = false;
 	public static int WH = 1080;
 	public static int WW = 1920;
-	public static final int RH = FULLRESOLUTION ? WH : 200;
-	public static final int RW = FULLRESOLUTION ? WW : 320;
+	public static final int RH = FULLRESOLUTION ? WH : 420;
+	public static final int RW = FULLRESOLUTION ? WW : 640;
 	public static Dimension screenRes;
 	private JFrame jframe;
 	
@@ -78,6 +78,12 @@ public class Main extends Canvas implements Runnable{
 		
 		world = new BufferedImage(RW, RH, BufferedImage.TYPE_INT_RGB);
 		
+		try{
+			Thread.sleep(50);
+		} catch (InterruptedException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		jframe.createBufferStrategy(2);
 		bs = jframe.getBufferStrategy();
 		map = new Map();
@@ -122,15 +128,18 @@ public class Main extends Canvas implements Runnable{
 	
 	public void render(){
 		Graphics[] gA = new Graphics[2];
+		BufferedImage[] bI = new BufferedImage[2];
 		gA[0] = bs.getDrawGraphics();
 		gA[1] = world.getGraphics();
+		bI[0] = null;
+		bI[1] = world;
 		
 		((Graphics2D)gA[1]).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 		((Graphics2D)gA[0]).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 		
 		gA[1].setColor(Color.black);
 		gA[1].fillRect(0, 0, WW, WH);
-		map.render(gA);
+		map.render(gA, bI);
 		
 		gA[0].drawImage(world, 0, 0, WW, WH, null);
 		

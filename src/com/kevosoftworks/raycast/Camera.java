@@ -88,7 +88,7 @@ public class Camera {
 				if(is.getX() >= Math.min(this.l.getX(), this.l.getX() + movement.getX()) && is.getX() <= Math.max(this.l.getX(), this.l.getX() + movement.getX())){
 					if(is.getY() >= Math.min(this.l.getY(), this.l.getY() + movement.getY()) && is.getY() <= Math.max(this.l.getY(), this.l.getY() + movement.getY())){
 						if(w instanceof PortalWall){
-							m.curuuid = ((PortalWall)w).getRoomUuid();
+							m.curuuid = ((PortalWall)w).getRoomId();
 						} else {
 							movement = new Vector2(0, 0);
 						}

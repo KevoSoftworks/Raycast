@@ -1,8 +1,8 @@
-package com.kevosoftworks.raycast.vector;
+package com.kevosoftworks.raycast.savable;
 
 import java.io.Serializable;
 
-public class Vector implements Serializable{
+public class Savable implements Serializable{
 
 	/**
 	 * 

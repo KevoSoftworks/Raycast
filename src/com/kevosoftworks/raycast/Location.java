@@ -1,9 +1,15 @@
 package com.kevosoftworks.raycast;
 
+import java.io.Serializable;
+
 import com.kevosoftworks.raycast.vector.Vector2;
 
-public class Location {
+public class Location implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	float x;
 	float y;
 	float rot;

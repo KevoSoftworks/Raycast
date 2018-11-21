@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
 
 public class Texture {
 	
+	int num;	
 	protected BufferedImage image;
 	public int width;
 	public int height;
@@ -19,7 +20,8 @@ public class Texture {
 	
 	ArrayList<Mipmap> mm;
 	
-	public Texture(String uri){
+	public Texture(int num, String uri){
+		this.num = num;
 		try {
 			this.image = ImageIO.read(Texture.class.getResource(uri));
 			this.width = this.image.getWidth();
@@ -45,6 +47,10 @@ public class Texture {
 			ret[i] = pA[i][col];
 		}
 		return ret;
+	}
+	
+	public int getNumber(){
+		return this.num;
 	}
 	
 	public int getMipmapIndex(float dist){

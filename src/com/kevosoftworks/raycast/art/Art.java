@@ -3,7 +3,6 @@ package com.kevosoftworks.raycast.art;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
-
 public class Art {
 	
 	public static final int TEXTURE_NONE = 0;
@@ -16,8 +15,7 @@ public class Art {
 	public static final int TEXTURE_WALL_DARK_GREEN = 7;
 	public static final int TEXTURE_WALL2 = 8;
 	public static final int TEXTURE_WALL3 = 9;
-	public static final int TEXTURE_GRASS = 10;
-	public static final int TEXTURE_ORIENTAL_WALL = 11;
+	public static final int TEXTURE_ORIENTAL_WALL = 10;
 	
 	private Texture none;
 	private Texture wall;
@@ -29,7 +27,6 @@ public class Art {
 	private Texture wallDGreen;
 	private Texture wall2;
 	private Texture wall3;
-	private Texture grass;
 	private Texture orientalWall;
 	
 	private Font font;
@@ -37,17 +34,17 @@ public class Art {
 	private Skybox skybox;
 	
 	public Art(){
-		none = new Texture("/textures/default.png");
-		wall = new Texture("/textures/wall.png");
-		wallBlue = new Texture("/textures/wall_blue.png");
-		wallDBlue = new Texture("/textures/wall_dark_blue.png");
-		wallRed = new Texture("/textures/wall_red.png");
-		wallDRed = new Texture("/textures/wall_dark_red.png");
-		wallGreen = new Texture("/textures/wall_green.png");
-		wallDGreen = new Texture("/textures/wall_dark_green.png");
-		wall2 = new Texture("/textures/wall2.png");
-		wall3 = new Texture("/textures/wall3.png");
-		orientalWall = new Texture("/textures/wall_oriental.png");
+		none = new Texture(TEXTURE_NONE, "/textures/default.png");
+		wall = new Texture(TEXTURE_WALL, "/textures/wall.png");
+		wallBlue = new Texture(TEXTURE_WALL_BLUE, "/textures/wall_blue.png");
+		wallDBlue = new Texture(TEXTURE_WALL_DARK_BLUE, "/textures/wall_dark_blue.png");
+		wallRed = new Texture(TEXTURE_WALL_RED, "/textures/wall_red.png");
+		wallDRed = new Texture(TEXTURE_WALL_DARK_RED, "/textures/wall_dark_red.png");
+		wallGreen = new Texture(TEXTURE_WALL_GREEN, "/textures/wall_green.png");
+		wallDGreen = new Texture(TEXTURE_WALL_DARK_GREEN, "/textures/wall_dark_green.png");
+		wall2 = new Texture(TEXTURE_WALL2, "/textures/wall2.png");
+		wall3 = new Texture(TEXTURE_WALL3, "/textures/wall3.png");
+		orientalWall = new Texture(TEXTURE_ORIENTAL_WALL, "/textures/wall_oriental.png");
 		
 		font = new Font("/font.png");
 		skybox = new Skybox("/skybox.png");
@@ -95,5 +92,4 @@ public class Art {
 	public BufferedImage text(String t){
 		return font.generateString(t);
 	}
-
 }

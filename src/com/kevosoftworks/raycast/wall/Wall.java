@@ -2,33 +2,39 @@ package com.kevosoftworks.raycast.wall;
 
 import com.kevosoftworks.raycast.Location;
 import com.kevosoftworks.raycast.art.Art;
+import com.kevosoftworks.raycast.vector.Vector2;
+import com.kevosoftworks.raycast.art.Texture;
 
 public class Wall{
 	
+	public static final int WALLTYPE_NONE = 0;
+	public static final int WALLTYPE_SOLID = 1;
+	public static final int WALLTYPE_PORTAL = 2;
+	
+	int id;
 	Location p1;
 	Location p2;
-	int texNum;
+	Texture tex;
 	float height;
+	Vector2 normal;
+	int wallType = WALLTYPE_NONE;
 	
-	public Wall(Location p1, Location p2){
+	public Wall(int id, Location p1, Location p2, Vector2 norm, Texture tex){
+		this.id = id;
 		this.p1 = p1;
 		this.p2 = p2;
-		this.texNum = Art.TEXTURE_WALL;
+		this.tex = tex;
 		this.height = 1;
+		this.normal = norm;
 	}
 	
-	public Wall(Location p1, Location p2, int texNum){
+	public Wall(int id, Location p1, Location p2, Vector2 norm, Texture tex, float height){
+		this.id = id;
 		this.p1 = p1;
 		this.p2 = p2;
-		this.texNum = texNum;
-		this.height = 1;
-	}
-	
-	public Wall(Location p1, Location p2, int texNum, float height){
-		this.p1 = p1;
-		this.p2 = p2;
-		this.texNum = texNum;
+		this.tex = tex;
 		this.height = height;
+		this.normal = norm;
 	}
 	
 	public Location getLocation1(){
@@ -46,12 +52,35 @@ public class Wall{
 		return l;
 	}
 	
-	public int getTextureNumber(){
-		return this.texNum;
+	public Texture getTexture(){
+		return this.tex;
+	}
+	
+	public void setTexture(Texture t){
+		this.tex = t;
 	}
 	
 	public float getHeight(){
 		return this.height;
 	}
-
+	
+	public void setHeight(float height){
+		this.height = height;
+	}
+	
+	public Vector2 getNormal(){
+		return this.normal;
+	}
+	
+	public void setNormal(Vector2 v){
+		this.normal = v;
+	}
+	
+	public int getId(){
+		return this.id;
+	}
+	
+	public int getWallType(){
+		return this.wallType;
+	}
 }

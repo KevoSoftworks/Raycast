@@ -18,7 +18,7 @@ public class Mipmap{
 	protected BufferedImage image;
 	
 	private static final boolean INTERPOLATION = true;
-	private static final boolean ANTIALIAS = false;
+	private static final boolean ANTIALIAS = true;
 	
 	public Mipmap(BufferedImage img, float scale){
 		this.width = (int)(img.getWidth() * scale);
@@ -32,6 +32,8 @@ public class Mipmap{
 		Graphics g = image.getGraphics();
 		if(INTERPOLATION)((Graphics2D)g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 		if(ANTIALIAS)((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
 		g.drawImage(img, 0, 0, this.width, this.height, null);
 		g.dispose();
 		

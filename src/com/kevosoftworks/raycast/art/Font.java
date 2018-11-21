@@ -12,7 +12,7 @@ public class Font extends Texture{
 	private BufferedImage[] chars;
 
 	public Font(String uri){
-		super(uri);
+		super(-1, uri);
 		this.chars = this.generateCharacters();
 	}
 	
