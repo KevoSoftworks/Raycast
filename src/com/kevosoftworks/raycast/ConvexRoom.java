@@ -258,57 +258,13 @@ public class ConvexRoom{
 
 				if(hasFloor && floorRenderPxStart < yMax){
 					long floorTime = System.nanoTime();
-					if(floorRenderPxStop > yMax) floorRenderPxStop = yMax;
-					if(floorRenderPxStart < yMin) floorRenderPxStart = yMin;
-					if(floorRenderPxStop - floorRenderPxStart > 0){
-						for(int yPx = floorRenderPxStart; yPx < floorRenderPxStop; ++yPx){
-							float fY = (float) (1f - 2f*deltaZ)*Main.RH / (2f * (float)yPx - (float)Main.RH);
-							float refY = fY / dist;
-							
-							Mipmap tex = floorTexture.getMipmap(floorTexture.getMipmapIndex(fY));
-							int[][] texPixelArray = tex.getPixelArray();
-							
-							float curX = (refY) * intersect.getX() + (1f-refY) * m.camera.getLocation().getX();
-							float curY = (refY) * intersect.getY() + (1f-refY) * m.camera.getLocation().getY();
-							
-							int texX = (int)Math.abs((curX * (float)tex.width / floorTextureScale) % tex.width);
-							int texY = (int)Math.abs((curY * (float)tex.height / floorTextureScale) % tex.height);
-							
-							float sf2 = (refY) * sf + (1f-refY) * lightMaximumBrightness; 
-							if(sf2 <= 0) continue;
-							if(sf2 > lightMaximumBrightness || !renderLight) sf2 = lightMaximumBrightness;
-							
-							bI[1].setRGB(i, yPx, darkenColor(texPixelArray[texX][texY], sf2));
-						}
-					}
+					this.renderPlane(intersect, m, bI, i, dist, sf, yMin, yMax, floorRenderPxStart, floorRenderPxStop, 1f - 2f*deltaZ);
 					m.timeFloor.put(id, m.timeFloor.get(id) + System.nanoTime() - floorTime);
 				}
 				
 				if(hasCeil && ceilRenderPxStop > yMin){
 					long ceilTime = System.nanoTime();
-					if(ceilRenderPxStart < yMin) ceilRenderPxStart = yMin;
-					if(ceilRenderPxStop >= yMax) ceilRenderPxStop = yMax;
-					if(ceilRenderPxStop - ceilRenderPxStart > 0){
-						for(int yPx = ceilRenderPxStart; yPx < ceilRenderPxStop; ++yPx){
-							float fY = (float) -(1f + 2f*(w.getHeight()-1f+deltaZ))*Main.RH / (2f * (float)yPx - (float)Main.RH);
-							float refY = fY / dist;
-							
-							Mipmap tex = ceilTexture.getMipmap(ceilTexture.getMipmapIndex(fY));
-							int[][] texPixelArray = tex.getPixelArray();
-							
-							float curX = (refY) * intersect.getX() + (1f-refY) * m.camera.getLocation().getX();
-							float curY = (refY) * intersect.getY() + (1f-refY) * m.camera.getLocation().getY();
-							
-							int texX = (int)Math.abs((curX * (float)tex.width / ceilTextureScale) % tex.width);
-							int texY = (int)Math.abs((curY * (float)tex.height / ceilTextureScale) % tex.height);
-							
-							float sf2 = (refY) * sf + (1f-refY) * lightMaximumBrightness; 
-							if(sf2 <= 0) continue;
-							if(sf2 > lightMaximumBrightness || !renderLight) sf2 = lightMaximumBrightness;
-							
-							bI[1].setRGB(i, yPx, darkenColor(texPixelArray[texX][texY], sf2));
-						}
-					}
+					this.renderPlane(intersect, m, bI, i, dist, sf, yMin, yMax, ceilRenderPxStart, ceilRenderPxStop, -(1f + 2f*(w.getHeight()-1f+deltaZ)));
 					m.timeCeil.put(id, m.timeCeil.get(id) + System.nanoTime() - ceilTime);
 				}
 			}
@@ -327,5 +283,34 @@ public class ConvexRoom{
 		int b = (int)((c & 0xFF) * ra);
 		
 		return (a << 24) | (r << 16) | (g << 8) | b;
+	}
+	
+	//Floor: 1f - 2f*deltaZ
+	//Ceil: -(1f + 2f*(w.getHeight()-1f+deltaZ))
+	//TODO: make this better
+	private void renderPlane(Location intersect, Map m, BufferedImage[] bI, int i, float dist, float sf, int yMin, int yMax, int planeStart, int planeStop, float planeConst){
+		if(planeStart < yMin) planeStart = yMin;
+		if(planeStop > yMax) planeStop = yMax;
+		if(planeStop - planeStart > 0){
+			for(int yPx = planeStart; yPx < planeStop; ++yPx){
+				float fY = planeConst * (float)Main.RH / (2f * (float)yPx - (float)Main.RH);
+				float refY = fY / dist;
+				
+				Mipmap tex = ceilTexture.getMipmap(ceilTexture.getMipmapIndex(fY));
+				int[][] texPixelArray = tex.getPixelArray();
+				
+				float curX = (refY) * intersect.getX() + (1f-refY) * m.camera.getLocation().getX();
+				float curY = (refY) * intersect.getY() + (1f-refY) * m.camera.getLocation().getY();
+				
+				int texX = (int)Math.abs((curX * (float)tex.width / ceilTextureScale) % tex.width);
+				int texY = (int)Math.abs((curY * (float)tex.height / ceilTextureScale) % tex.height);
+				
+				float sf2 = (refY) * sf + (1f-refY) * lightMaximumBrightness; 
+				if(sf2 <= 0) continue;
+				if(sf2 > lightMaximumBrightness || !renderLight) sf2 = lightMaximumBrightness;
+				
+				bI[1].setRGB(i, yPx, darkenColor(texPixelArray[texX][texY], sf2));
+			}
+		}
 	}
 }
